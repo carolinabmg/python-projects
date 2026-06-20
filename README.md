@@ -1,98 +1,207 @@
-# 🚀 Python Projects Portfolio
+# 🐍✨ Python Projects Portfolio
 
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=25&pause=1000&color=FF69B4&center=true&vCenter=true&width=700&lines=Carolina+Bueno+Mendonça+Gonçalves;ADS+Student+%7C+Future+Python+Developer;Building+Projects+One+Quest+at+a+Time+🐍✨" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&pause=1000&color=FF69B4&center=true&vCenter=true&width=800&lines=Carolina+Bueno+Mendonça+Gonçalves;ADS+Student+%7C+Future+Software+Developer;Building+Projects+One+Quest+at+a+Time+🐍✨" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/>
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Status-Active-ff69b4?style=for-the-badge"/>
 </p>
 
 ---
 
-## 🌸 About Me
+# 🌸 About Me
 
-Hello! I'm **Carolina Bueno Mendonça Gonçalves**, an ADS student passionate about technology, programming, and creating projects that transform learning into practice.
+Hello! I'm **Carolina Bueno Mendonça Gonçalves**, an **Analysis and Systems Development (ADS)** student passionate about technology, programming, and continuous learning.
 
 💖 Areas of Interest:
-- 🐍 Python Development
-- 🎮 Game Development
-- 🗄️ Databases (SQL)
-- 🌐 Front-End Development
-- 🤖 Artificial Intelligence
-- 🎨 UI/UX Design
+
+* 🐍 Python Development
+* 🎮 Game Development
+* 🌐 Front-End Development
+* 🗄️ Databases (SQL)
+* 🤖 Artificial Intelligence
+* 🎨 UI/UX Design
+
+My goal is to become a software developer and build projects that combine creativity, logic, and problem-solving.
 
 ---
 
 # 🏆 Completed Projects
 
-## ⏱️ Pomodoro Timer
-A productivity application based on the Pomodoro Technique.
+This repository contains **100% completed projects**, developed during my learning journey in Python.
 
-### ✨ Features
-- Start and stop timer
-- Work and break sessions
-- Improves focus and study organization
-- Beginner-friendly Python project
+---
 
-**Technologies:** Python
+# 📅 Digital Agenda
+
+A productivity application designed to help organize tasks, reminders, and appointments.
+
+## ✨ Features
+
+* ➕ Add new tasks
+* ❌ Remove tasks
+* 📋 View saved appointments
+* 📝 Manage daily activities
+* 🗂️ Organize information efficiently
+* 🔄 Interactive menu system
+* 💻 Console-based user interface
+* 🧠 Practice with lists, loops, and functions
+
+### Technologies Used
+
+* Python
+* Lists
+* Functions
+* Conditionals
+* Loops
 
 **Status:** ✅ Completed
 
 ---
 
-## 🎲 Guessing Game
-A game where the player tries to guess a randomly generated number.
+# ⏱️ Pomodoro Timer
 
-### ✨ Features
-- Random number generation
-- Difficulty and retry logic
-- Feedback for high and low guesses
-- Score and game loop concepts
+A productivity application based on the famous **Pomodoro Technique**, helping users stay focused while studying or working.
 
-**Technologies:** Python
+## ✨ Features
 
-**Status:** ✅ Completed
+* ▶️ Start timer
+* ⏸️ Pause sessions
+* 🔁 Work and break cycles
+* ⏰ Countdown system
+* 📚 Productivity support
+* 🧠 Time management practice
+* 💻 Console interface
 
----
+### Technologies Used
 
-## 🧠 Memory Game Deluxe
-An interactive memory game developed in Python.
-
-### ✨ Features
-- Matching card mechanics
-- Game logic and loops
-- Enhanced gameplay features
-- Practice with functions and conditions
-
-**Technologies:** Python
+* Python
+* Time module
+* Loops
+* Functions
+* Conditionals
 
 **Status:** ✅ Completed
 
 ---
 
-# 🛠️ Technologies Used
+# ✊🖐️✌️ Rock Paper Scissors
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+A classic game where the player competes against the computer.
 
----
+## ✨ Features
 
-# 🎯 Learning Journey
+* 🎮 Player vs Computer mode
+* 🎲 Random computer choices
+* 🏆 Win, lose, and draw conditions
+* 🔄 Replay functionality
+* 📊 Score logic
+* 🧠 Decision-making practice
+* 💻 Interactive console interface
 
-- ✅ Variables and Data Types
-- ✅ Conditionals
-- ✅ Loops
-- ✅ Functions
-- ✅ Lists and Dictionaries
-- ✅ Game Logic
-- ✅ Problem Solving
-- 🔄 Object-Oriented Programming
-- 🔄 APIs and Databases
+### Technologies Used
 
----
+* Python
+* Random module
+* Conditionals
+* Loops
+* Functions
 
-## 📚 Repository Goal
-
-This repository contains **100% completed Python projects**, created during my journey as an ADS student and future software developer. Each project represents a new challenge conquered and a new spell learned in my programming grimoire. 🧙‍♀️🐍✨
+**Status:** ✅ Completed
 
 ---
 
-⭐ If you like this repository, don't forget to leave a star!
+# 🎲 Guessing Game
+
+A game where the player attempts to guess a randomly generated number.
+
+## ✨ Features
+
+* 🔢 Random number generation
+* ⬆️ High/Low hints
+* 🔄 Retry system
+* 🏆 Victory conditions
+* 📊 Attempt counter
+* 🎯 Difficulty adjustment
+* 🧠 Logic and problem-solving practice
+* 💻 Interactive console interface
+
+### Technologies Used
+
+* Python
+* Random module
+* Loops
+* Conditionals
+* Variables
+* Functions
+
+**Status:** ✅ Completed
+
+---
+
+# 🛠️ Technologies Used in This Repository
+
+* 🐍 Python
+* 🔄 Git
+* ☁️ GitHub
+* 📋 Lists
+* 🧩 Functions
+* 🔀 Conditionals
+* 🔁 Loops
+* 🎲 Random Module
+* ⏰ Time Module
+* 🏗️ Problem Solving
+
+---
+
+# 📂 Repository Structure
+
+```text
+python-projects/
+│
+├── 📅 digital-agenda/
+├── ⏱️ pomodoro-timer/
+├── ✊🖐️✌️ rock-paper-scissors/
+├── 🎲 guessing-game/
+└── README.md
+```
+
+---
+
+# 🌱 Learning Journey
+
+✅ Variables and Data Types
+✅ Input and Output
+✅ Conditionals
+✅ Loops
+✅ Functions
+✅ Lists
+✅ Problem Solving
+✅ Game Logic
+✅ Console Applications
+🔄 Object-Oriented Programming (In Progress)
+🔄 APIs and Databases (In Progress)
+
+---
+
+# 🎯 Goals
+
+* Build more complete Python applications
+* Learn Object-Oriented Programming (OOP)
+* Study APIs and Databases
+* Create larger projects and portfolios
+* Obtain my first internship in technology
+
+---
+
+# ⭐ Repository Purpose
+
+This repository represents my journey as an **ADS student and future software developer**. Every project here is a completed quest that helped me develop programming skills, logical thinking, and creativity.
+
+> "Every line of code is another spell learned in my Python Grimoire." 🧙‍♀️🐍✨
+
+If you enjoyed this repository, don't forget to leave a ⭐!
