@@ -1,29 +1,27 @@
 {
-  "matheo": {
-    "xp": 260,
-    "level": 3,
+  "Carolina Bueno": {
+    "xp": 150,
+    "level": 2,
+    "moedas": 15,
     "achievements": [
-      "Primeira Vitória 🏆"
-    ],
-    "stats": {
-      "games_played": 2,
-      "games_won": 2,
-      "total_time": 142,
-      "best_time": 65
-    }
-  },
-  "Carol": {
-    "xp": 260,
-    "level": 3,
-    "achievements": [
+      "Streak Master 🔥🔥🔥",
       "Primeira Vitória 🏆",
       "Velocista ⚡"
     ],
+    "itens_loja": [],
+    "historico": [
+      {
+        "data": "20/06/2026 15:51",
+        "tempo": 47,
+        "dificuldade": "Fácil",
+        "vitoria": true
+      }
+    ],
     "stats": {
-      "games_played": 2,
-      "games_won": 2,
-      "total_time": 61,
-      "best_time": 29
+      "games_played": 1,
+      "games_won": 1,
+      "total_time": 47,
+      "best_time": 47
     }
   }
 }

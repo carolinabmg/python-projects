@@ -1,61 +1,135 @@
 """
-🎀 MEMORY GAME DELUXE KAWAII RPG - VERSÃO 8.0 (POO) 🌸
-╔══════════════════════════════════════════════════════╗
-║        AGORA DÁ PRA RESETAR SÓ O RANKING            ║
-╚══════════════════════════════════════════════════════╝
-
-✨ NOVIDADES DA v8.0:
-  ✅ Botão "♻️ Resetar Ranking" dentro da tela de Ranking
-       → apaga SÓ o top 10. Os perfis e o progresso ficam intactos!
-  ✅ Se o ranking já estiver vazio, o jogo avisa com carinho
-       (em vez de não fazer nada).
-  ✅ Corrigido um detalhe técnico: o jogo abria o "loop" duas vezes.
-
-  (Continua tudo da v7: fluidez sem pop-ups chatos, avisos de
-   segurança, navegação clara, ajuda visual, vários perfis,
-   comparação, salvar/continuar, conquistas e níveis com título.)
+🎀 MEMORY GAME DELUXE KAWAII RPG - VERSÃO 9.0
+╔══════════════════════════════════════════════════════════════╗
+║                    NOVIDADES DA v9.0                         ║
+╠══════════════════════════════════════════════════════════════╣
+║  ✅ [2]  Classe FileManager — salvar/carregar centralizado   ║
+║  ✅ [3]  Constantes de nível (XP_POR_NIVEL, XP_PROXIMO)     ║
+║  ✅ [4]  Títulos em dicionário (TITULOS)                     ║
+║  ✅ [5]  (pronto pra separar; imports já organizados)        ║
+║  ✅ [6]  Enum Dificuldade                                    ║
+║  ✅ [7]  Classe Carta                                        ║
+║  ✅ [8]  XP com streak (bônus a cada 3 acertos seguidos)     ║
+║  ✅ [9]  Barra de progresso de nível (XP visual)             ║
+║  ✅ [10] Sons com pygame (fallback silencioso se ausente)    ║
+║  ✅ [+]  Animação de virar carta (flash de cor)              ║
+║  ✅ [+]  Histórico das últimas 5 partidas por perfil         ║
+║  ✅ [+]  Temas de carta (Kawaii / Natureza / Comida / Espaço)║
+╚══════════════════════════════════════════════════════════════╝
 """
 
+# ── stdlib ──────────────────────────────────────────────────────────────────
 import tkinter as tk
-from tkinter import messagebox, font
+from tkinter import messagebox
 import random
 import time
 import json
 import os
+from enum import Enum
+from datetime import datetime
 
-# =====================================================
-# CORES KAWAII PASTEL
-# =====================================================
-BG = "#FFF0F6"
-PINK = "#FFB6C1"
-LILAC = "#D8B4FE"
-BLUE = "#BDE0FE"
-MINT = "#C7F9CC"
-PEACH = "#FFD6A5"
-YELLOW = "#FDFFB6"
-PURPLE = "#E0C3FC"
-CORAL = "#FFB3BA"
-DARK_PINK = "#FFB0C9"
+# ── pygame (opcional — sons) ─────────────────────────────────────────────────
+try:
+    import pygame
+    pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=512)
+    PYGAME_OK = True
+except Exception:
+    PYGAME_OK = False
+
+
+# ╔══════════════════════════════════════════════════════════════╗
+# ║                     CONSTANTES GLOBAIS                       ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ── Cores kawaii ────────────────────────────────────────────────
+BG         = "#FFF0F6"
+PINK       = "#FFB6C1"
+LILAC      = "#D8B4FE"
+BLUE       = "#BDE0FE"
+MINT       = "#C7F9CC"
+PEACH      = "#FFD6A5"
+YELLOW     = "#FDFFB6"
+PURPLE     = "#E0C3FC"
+CORAL      = "#FFB3BA"
 LIGHT_PINK = "#FFF5F8"
-RED = "#E63946"
+RED        = "#E63946"
+DARK_TEXT  = "#2D3142"
+VIOLET     = "#7B2CBF"
+DEEP_RED   = "#A4133C"
 
-# =====================================================
-# EMOJIS DAS CARTAS
-# =====================================================
-ICONS = [
-    "🌸", "🎀", "🧸", "🩷", "🦋", "🌙",
-    "🍓", "🧁", "⭐", "🍀", "🐱", "💎",
-    "🌈", "🦄", "🍭", "🌼", "🎵", "☁️"
-]
+# ── [3] Constantes de nível ─────────────────────────────────────
+XP_POR_NIVEL   = 100          # XP necessário por nível
+XP_ACERTO      = 10           # XP por par acertado
+XP_VITORIA     = 50           # XP bônus ao vencer
+XP_STREAK      = 20           # XP bônus a cada 3 acertos seguidos
+STREAK_TRIGGER = 3            # quantos acertos seguidos ativam o bônus
+MAX_HISTORICO  = 5            # últimas N partidas guardadas
 
-# =====================================================
-# FALAS DA MASCOTE CIRILLA (pra faixa na tela)
-# =====================================================
+# ── [4] Títulos em dicionário ───────────────────────────────────
+TITULOS = {
+    1: "Aprendiz 🌱",
+    3: "Maga do Código 🔮",
+    6: "Arquimaga 👑",
+    10: "Lenda Kawaii ✨",
+}
+
+def titulo_para_nivel(level: int) -> str:
+    """Devolve o título correspondente ao nível."""
+    titulo = TITULOS[1]
+    for limiar, nome in TITULOS.items():
+        if level >= limiar:
+            titulo = nome
+    return titulo
+
+
+# ── [6] Enum de dificuldade ─────────────────────────────────────
+class Dificuldade(Enum):
+    FACIL  = "Fácil"
+    MEDIO  = "Médio"
+    DIFICIL = "Difícil"
+
+GRADE_DIFICULDADE = {
+    Dificuldade.FACIL:   (4, 4),
+    Dificuldade.MEDIO:   (4, 5),
+    Dificuldade.DIFICIL: (6, 6),
+}
+
+
+# ── Temas de cartas ─────────────────────────────────────────────
+TEMAS = {
+    "Kawaii 🎀": [
+        "🌸","🎀","🧸","🩷","🦋","🌙",
+        "🍓","🧁","⭐","🍀","🐱","💎",
+        "🌈","🦄","🍭","🌼","🎵","☁️"
+    ],
+    "Natureza 🌿": [
+        "🌲","🌺","🍄","🐸","🌊","🦊",
+        "🐝","🌻","🍁","🦜","🐚","🌍",
+        "🦋","🌿","🐠","🍃","🌙","⛰️"
+    ],
+    "Comida 🍕": [
+        "🍕","🍣","🍩","🌮","🍜","🍓",
+        "🧁","🍦","🍇","🥑","🍋","🥐",
+        "🍔","🍿","🥞","🍰","🥭","🫐"
+    ],
+    "Espaço 🚀": [
+        "🚀","🌙","⭐","🪐","☄️","🌌",
+        "👾","🛸","🔭","💫","🌠","🪨",
+        "🌟","🌑","🪐","🛰️","🌞","🌀"
+    ],
+}
+
+# ── Falas da mascote ────────────────────────────────────────────
 FALAS_ACERTO = [
     "Isso! Você acertou um par! 💖",
     "Que incrível! ⭐",
     "Você é a melhor! 👑",
     "Mandou bem demais! 🌟",
+]
+FALAS_STREAK = [
+    "🔥 STREAK x3! XP bônus pra você! ✨",
+    "🔥 Três seguidos! Você tá voando! 💜",
+    "🔥 Combo incrível! +20 XP! 🌟",
 ]
 FALAS_ERRO = [
     "Quase! Tenta outro par 💭",
@@ -63,215 +137,325 @@ FALAS_ERRO = [
     "Respira e olha de novo 🦋",
 ]
 
-# =====================================================
-# NOMES DOS ARQUIVOS
-# =====================================================
-RANK_FILE = "ranking_kawaii.json"
-PROGRESS_FILE = "progress_kawaii.json"
-PERFIS_FILE = "perfis_kawaii.json"
+# ── Nomes dos arquivos ──────────────────────────────────────────
+RANK_FILE      = "ranking_kawaii.json"
+PERFIS_FILE    = "perfis_kawaii.json"
 SAVE_GAME_FILE = "jogo_salvo_kawaii.json"
 
 
-# =====================================================
-# 🧙‍♀️ MOLDE 1 — A JOGADORA
-# =====================================================
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          [2]  CLASSE FileManager                             ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+class FileManager:
+    """
+    Centraliza TODO acesso a disco.
+    Nenhuma outra classe deve abrir arquivos diretamente.
+    """
+
+    @staticmethod
+    def ler(caminho: str, padrao=None):
+        """Lê JSON; devolve `padrao` se o arquivo não existir ou estiver corrompido."""
+        if not os.path.exists(caminho):
+            return padrao
+        try:
+            with open(caminho, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return padrao
+
+    @staticmethod
+    def gravar(caminho: str, dados) -> bool:
+        """Grava dados como JSON. Devolve True em caso de sucesso."""
+        try:
+            with open(caminho, "w", encoding="utf-8") as f:
+                json.dump(dados, f, ensure_ascii=False, indent=2)
+            return True
+        except Exception:
+            return False
+
+    @staticmethod
+    def apagar(caminho: str) -> bool:
+        """Apaga o arquivo se existir."""
+        if os.path.exists(caminho):
+            try:
+                os.remove(caminho)
+                return True
+            except Exception:
+                return False
+        return False
+
+    @staticmethod
+    def existe(caminho: str) -> bool:
+        return os.path.exists(caminho)
+
+
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          [7]  CLASSE Carta                                   ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+class Carta:
+    """
+    Representa uma carta individual do tabuleiro.
+    Guarda seu valor (emoji), índice e estado (virada / combinada).
+    """
+
+    def __init__(self, indice: int, valor: str):
+        self.indice   = indice
+        self.valor    = valor
+        self.virada   = False   # visível no momento?
+        self.combinada = False  # já foi pareada?
+
+    def virar(self):
+        self.virada = True
+
+    def esconder(self):
+        self.virada = False
+
+    def marcar_combinada(self):
+        self.combinada = True
+        self.virada = True
+
+    def __repr__(self):
+        estado = "✓" if self.combinada else ("↑" if self.virada else "↓")
+        return f"Carta({self.indice}, {self.valor}, {estado})"
+
+
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          SOM                                                 ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+class Som:
+    """Gera sons sintéticos via pygame. Se pygame não estiver disponível, fica em silêncio."""
+
+    @staticmethod
+    def _gerar(freq: float, duracao: float, volume: float = 0.3):
+        """Sintetiza uma onda senoidal e reproduz."""
+        if not PYGAME_OK:
+            return
+        try:
+            import numpy as np
+            taxa   = 44100
+            frames = int(taxa * duracao)
+            t      = [i / taxa for i in range(frames)]
+            onda   = bytes(
+                int(32767 * volume * __import__("math").sin(2 * __import__("math").pi * freq * x))
+                    .to_bytes(2, "little", signed=True)
+                for x in t
+            )
+            som = pygame.mixer.Sound(buffer=onda)
+            som.play()
+        except Exception:
+            pass
+
+    @staticmethod
+    def acerto():
+        Som._gerar(880, 0.12)
+
+    @staticmethod
+    def erro():
+        Som._gerar(220, 0.18)
+
+    @staticmethod
+    def streak():
+        Som._gerar(1046, 0.20)
+
+    @staticmethod
+    def vitoria():
+        for freq in [523, 659, 784, 1046]:
+            Som._gerar(freq, 0.10)
+            time.sleep(0.08)
+
+
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          JOGADORA                                            ║
+# ╚══════════════════════════════════════════════════════════════╝
+
 class Jogadora:
-    """Uma maga e seu progresso (nome, xp, nível, conquistas, stats)."""
+    """Uma maga e todo seu progresso."""
 
     def __init__(self, nome="Convidada"):
-        self.nome = nome
-        self.xp = 0
-        self.level = 1
+        self.nome        = nome
+        self.xp          = 0
+        self.level       = 1
         self.achievements = []
+        self.historico   = []          # últimas MAX_HISTORICO partidas
         self.stats = {
             "games_played": 0,
-            "games_won": 0,
-            "total_time": 0,
-            "best_time": None
+            "games_won":    0,
+            "total_time":   0,
+            "best_time":    None,
         }
 
-    def para_dicionario(self):
-        """📦 Vira dicionário pra salvar (o nome fica como chave no armário)."""
+    # ── serialização ────────────────────────────────────────────
+    def para_dicionario(self) -> dict:
         return {
-            "xp": self.xp,
-            "level": self.level,
+            "xp":           self.xp,
+            "level":        self.level,
             "achievements": self.achievements,
-            "stats": self.stats
+            "stats":        self.stats,
+            "historico":    self.historico,
         }
 
-    def carregar_de(self, dados):
-        """📖 Preenche a jogadora a partir de um dicionário salvo."""
-        self.xp = dados.get("xp", 0)
-        self.level = dados.get("level", 1)
+    def carregar_de(self, dados: dict):
+        self.xp           = dados.get("xp", 0)
+        self.level        = dados.get("level", 1)
         self.achievements = dados.get("achievements", [])
-        self.stats = dados.get("stats", self.stats)
+        self.stats        = dados.get("stats", self.stats)
+        self.historico    = dados.get("historico", [])
 
-    def ganhar_xp(self, quantidade):
-        """⭐ Soma XP, recalcula o nível e devolve True se subiu de nível."""
+    # ── XP e nível ──────────────────────────────────────────────
+    def ganhar_xp(self, quantidade: int) -> bool:
+        """Soma XP, recalcula nível. Devolve True se subiu de nível."""
         nivel_antigo = self.level
-        self.xp += quantidade
-        self.level = self.xp // 100 + 1
+        self.xp     += quantidade
+        self.level   = self.xp // XP_POR_NIVEL + 1
         return self.level > nivel_antigo
 
-    def desbloquear_conquista(self, texto):
-        """🏆 Adiciona conquista nova e devolve True (ou False se já tinha)."""
+    def xp_no_nivel_atual(self) -> int:
+        """XP acumulado DENTRO do nível atual (0 … XP_POR_NIVEL-1)."""
+        return self.xp % XP_POR_NIVEL
+
+    def xp_para_proximo(self) -> int:
+        return XP_POR_NIVEL
+
+    # ── conquistas ───────────────────────────────────────────────
+    def desbloquear_conquista(self, texto: str) -> bool:
         if texto not in self.achievements:
             self.achievements.append(texto)
             return True
         return False
 
-    def titulo(self):
-        """👑 Título conforme o nível: Aprendiz → Maga do Código → Arquimaga."""
-        if self.level >= 6:
-            return "Arquimaga 👑"
-        elif self.level >= 3:
-            return "Maga do Código 🔮"
-        else:
-            return "Aprendiz 🌱"
+    # ── título ──────────────────────────────────────────────────
+    def titulo(self) -> str:
+        return titulo_para_nivel(self.level)
+
+    # ── histórico ───────────────────────────────────────────────
+    def registrar_partida(self, tempo: int, dificuldade: str, vitoria: bool):
+        """Adiciona entrada no histórico (mantém últimas MAX_HISTORICO)."""
+        entrada = {
+            "data":        datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "tempo":       tempo,
+            "dificuldade": dificuldade,
+            "vitoria":     vitoria,
+        }
+        self.historico.insert(0, entrada)
+        self.historico = self.historico[:MAX_HISTORICO]
 
 
-# =====================================================
-# 👥 MOLDE 2 — O GERENCIADOR DE PERFIS
-# =====================================================
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          GERENCIADOR DE PERFIS                               ║
+# ╚══════════════════════════════════════════════════════════════╝
+
 class GerenciadorDePerfis:
-    """Cuida de TODOS os perfis (o armário de gavetas). 👥"""
+    """Cuida de TODOS os perfis usando FileManager."""
 
     def __init__(self):
-        self.perfis = {}
+        self.perfis: dict = {}
         self.carregar()
 
     def carregar(self):
-        """📖 Abre o arquivo de perfis (e migra o progresso antigo, se houver)."""
-        if os.path.exists(PERFIS_FILE):
-            try:
-                with open(PERFIS_FILE, "r", encoding="utf-8") as f:
-                    self.perfis = json.load(f)
-            except:
-                self.perfis = {}
-        else:
-            self.perfis = {}
-            if os.path.exists(PROGRESS_FILE):
-                try:
-                    with open(PROGRESS_FILE, "r", encoding="utf-8") as f:
-                        antigo = json.load(f)
-                    self.perfis["Convidada"] = antigo
-                    self.salvar()
-                except:
-                    pass
+        self.perfis = FileManager.ler(PERFIS_FILE, padrao={})
 
     def salvar(self):
-        """✍️ Grava o armário inteiro no arquivo."""
-        with open(PERFIS_FILE, "w", encoding="utf-8") as f:
-            json.dump(self.perfis, f, ensure_ascii=False, indent=2)
+        FileManager.gravar(PERFIS_FILE, self.perfis)
 
-    def nomes(self):
-        """📋 Lista os nomes de todos os perfis."""
+    def nomes(self) -> list:
         return list(self.perfis.keys())
 
-    def existe(self, nome):
+    def existe(self, nome: str) -> bool:
         return nome in self.perfis
 
-    def carregar_jogadora(self, nome):
-        """🧙‍♀️ Monta uma Jogadora pronta a partir da gaveta 'nome'."""
-        jogadora = Jogadora(nome)
+    def carregar_jogadora(self, nome: str) -> Jogadora:
+        jog = Jogadora(nome)
         if nome in self.perfis:
-            jogadora.carregar_de(self.perfis[nome])
-        return jogadora
+            jog.carregar_de(self.perfis[nome])
+        return jog
 
-    def salvar_jogadora(self, jogadora):
-        """💾 Guarda os dados da jogadora de volta na gaveta dela."""
+    def salvar_jogadora(self, jogadora: Jogadora):
         self.perfis[jogadora.nome] = jogadora.para_dicionario()
         self.salvar()
 
-    def apagar(self, nome):
-        """🗑️ Joga fora a gaveta de um perfil."""
+    def apagar(self, nome: str):
         if nome in self.perfis:
             del self.perfis[nome]
             self.salvar()
 
     def resetar_todos(self):
-        """♻️ Esvazia o armário inteiro e apaga o arquivo."""
         self.perfis = {}
-        if os.path.exists(PERFIS_FILE):
-            os.remove(PERFIS_FILE)
+        FileManager.apagar(PERFIS_FILE)
 
 
-# =====================================================
-# 🏆 MOLDE 3 — O RANKING
-# =====================================================
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          RANKING                                             ║
+# ╚══════════════════════════════════════════════════════════════╝
+
 class Ranking:
-    """A tabela dos melhores resultados (top 10). 🏆"""
+    """Top 10 resultados."""
 
     def __init__(self):
-        self.lista = []
+        self.lista: list = []
         self.carregar()
 
     def carregar(self):
-        if os.path.exists(RANK_FILE):
-            try:
-                with open(RANK_FILE, "r", encoding="utf-8") as f:
-                    self.lista = json.load(f)
-            except:
-                self.lista = []
-        else:
-            self.lista = []
+        self.lista = FileManager.ler(RANK_FILE, padrao=[])
 
     def salvar(self):
-        with open(RANK_FILE, "w", encoding="utf-8") as f:
-            json.dump(self.lista, f, ensure_ascii=False, indent=2)
+        FileManager.gravar(RANK_FILE, self.lista)
 
-    def adicionar(self, nome, score, tempo, nivel):
-        novo = {"name": nome, "score": score, "time": tempo, "level": nivel}
-        self.lista.append(novo)
+    def adicionar(self, nome: str, score: int, tempo: int, nivel: int):
+        self.lista.append({"name": nome, "score": score, "time": tempo, "level": nivel})
         self.lista.sort(key=lambda x: x["score"], reverse=True)
         self.lista = self.lista[:10]
         self.salvar()
 
-    def esta_vazio(self):
-        """🆕 Diz se o ranking está vazio (sem nenhum resultado)."""
+    def esta_vazio(self) -> bool:
         return len(self.lista) == 0
 
     def resetar(self):
-        """♻️ Esvazia o ranking e apaga o arquivo."""
         self.lista = []
-        if os.path.exists(RANK_FILE):
-            os.remove(RANK_FILE)
+        FileManager.apagar(RANK_FILE)
 
 
-# =====================================================
-# 🎮 MOLDE 4 — O JOGO
-# =====================================================
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          JOGO PRINCIPAL                                      ║
+# ╚══════════════════════════════════════════════════════════════╝
+
 class KawaiiMemoryGame:
-    """O jogo inteiro. Contém um gerenciador, um ranking e a jogadora ativa. 🪆"""
 
-    # -------------------------------------------------
-    # NASCIMENTO E FERRAMENTAS BÁSICAS
-    # -------------------------------------------------
-
-    def __init__(self, root):
+    # ── inicialização ────────────────────────────────────────────
+    def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("🎀 Memory Game Deluxe Kawaii RPG v8.0 (POO)")
-        self.root.geometry("1200x900")
+        self.root.title("🎀 Memory Game Deluxe Kawaii RPG v9.0")
+        self.root.geometry("1200x950")
         self.root.configure(bg=BG)
 
-        self.gerenciador = GerenciadorDePerfis()
-        self.ranking = Ranking()
-        self.jogadora = None
+        self.gerenciador    = GerenciadorDePerfis()
+        self.ranking        = Ranking()
+        self.jogadora: Jogadora | None = None
 
-        self.diff = tk.StringVar(value="Fácil")
+        # controles de jogo
+        self.diff        = tk.StringVar(value=Dificuldade.FACIL.value)
+        self.tema_atual  = tk.StringVar(value="Kawaii 🎀")
         self.novo_perfil = tk.StringVar()
+
         self.tempo_acumulado = 0
-        self.start_time = None  # cronômetro desligado
+        self.start_time      = None
+        self.streak          = 0      # acertos seguidos
+
+        # cartas (lista de objetos Carta)
+        self.cartas: list[Carta] = []
+        self.primeira: Carta | None = None
+        self.segunda:  Carta | None = None
 
         self.tela_perfis()
 
+    # ── utilitários de tela ──────────────────────────────────────
     def clear(self):
-        """🧹 Apaga tudo da tela."""
-        for widget in self.root.winfo_children():
-            widget.destroy()
+        for w in self.root.winfo_children():
+            w.destroy()
 
     def _botao_voltar(self, parent, destino):
-        """🧭 Cria SEMPRE o mesmo botão "Voltar" (idêntico em todas as telas)."""
         tk.Button(
             parent, text="🔙 Voltar",
             font=("Arial", 12, "bold"), bg=BLUE, fg="white", width=20,
@@ -279,72 +463,84 @@ class KawaiiMemoryGame:
         ).pack(pady=20)
 
     def _subtitulo_perfil(self, parent):
-        """💡 AJUDA VISUAL: mostra qual perfil está ativo numa telinha."""
-        if self.jogadora is not None:
+        if self.jogadora:
             tk.Label(
-                parent, text=f"👤 Perfil ativo: {self.jogadora.nome}",
-                font=("Arial", 11, "italic"), bg=BG, fg="#7B2CBF"
+                parent,
+                text=f"👤 Perfil ativo: {self.jogadora.nome}",
+                font=("Arial", 11, "italic"), bg=BG, fg=VIOLET
             ).pack(pady=(0, 8))
 
-    # -------------------------------------------------
-    # ATALHOS PRA FALAR COM A JOGADORA ATIVA
-    # -------------------------------------------------
+    # ── [9] Barra de progresso de XP ────────────────────────────
+    def _barra_xp(self, parent):
+        """Desenha a barra de progresso de nível da jogadora ativa."""
+        if not self.jogadora:
+            return
+        xp_atual  = self.jogadora.xp_no_nivel_atual()
+        xp_max    = self.jogadora.xp_para_proximo()
+        pct       = xp_atual / xp_max
 
-    def _ganhar_xp(self, quantidade):
-        """Dá XP, guarda no perfil e (só se subir de nível) mostra pop-up."""
-        subiu = self.jogadora.ganhar_xp(quantidade)
+        frame = tk.Frame(parent, bg=BG)
+        frame.pack(pady=(4, 8))
+
+        tk.Label(
+            frame,
+            text=f"⭐ Nível {self.jogadora.level} — {xp_atual}/{xp_max} XP",
+            font=("Arial", 10, "bold"), bg=BG, fg=VIOLET
+        ).pack()
+
+        canvas = tk.Canvas(frame, width=400, height=18, bg="#E8D5F5",
+                           highlightthickness=1, highlightbackground=LILAC)
+        canvas.pack()
+        canvas.create_rectangle(0, 0, int(400 * pct), 18, fill=LILAC, outline="")
+        canvas.create_text(200, 9, text=f"{int(pct*100)}%",
+                           font=("Arial", 9, "bold"), fill=DARK_TEXT)
+
+    # ── atalhos jogadora ─────────────────────────────────────────
+    def _ganhar_xp(self, qtd: int):
+        subiu = self.jogadora.ganhar_xp(qtd)
         self.gerenciador.salvar_jogadora(self.jogadora)
         if subiu:
             messagebox.showinfo(
                 "✨ LEVEL UP!",
-                f"Parabéns, {self.jogadora.nome}! Você chegou ao nível {self.jogadora.level}!\n"
+                f"Parabéns, {self.jogadora.nome}!\n"
+                f"Você chegou ao nível {self.jogadora.level}!\n"
                 f"Agora você é: {self.jogadora.titulo()} 🎉"
             )
 
-    def _desbloquear(self, texto):
-        """Desbloqueia conquista, guarda e (só se for nova) mostra pop-up."""
+    def _desbloquear(self, texto: str):
         if self.jogadora.desbloquear_conquista(texto):
             self.gerenciador.salvar_jogadora(self.jogadora)
             messagebox.showinfo("🏆 CONQUISTA!", texto)
 
-    # -------------------------------------------------
+    # ─────────────────────────────────────────────────────────────
     # TELA DE PERFIS
-    # -------------------------------------------------
-
+    # ─────────────────────────────────────────────────────────────
     def tela_perfis(self):
-        """👥 Escolher / criar / apagar perfis."""
         self.start_time = None
         self.clear()
-        main_frame = tk.Frame(self.root, bg=BG)
-        main_frame.pack(fill="both", expand=True)
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
 
-        tk.Label(
-            main_frame, text="👥 PERFIS DAS FEITICEIRAS 🌸",
-            font=("Comic Sans MS", 30, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=(25, 5))
-        tk.Label(
-            main_frame, text="Escolha um perfil pra jogar, ou crie um novo:",
-            font=("Arial", 13), bg=BG, fg="#7B2CBF"
-        ).pack(pady=(0, 15))
+        tk.Label(main, text="👥 PERFIS DAS FEITICEIRAS 🌸",
+                 font=("Comic Sans MS", 28, "bold"), bg=BG, fg=DEEP_RED).pack(pady=(25, 5))
+        tk.Label(main, text="Escolha um perfil ou crie um novo:",
+                 font=("Arial", 13), bg=BG, fg=VIOLET).pack(pady=(0, 12))
 
         nomes = self.gerenciador.nomes()
-
         if not nomes:
-            tk.Label(
-                main_frame, text="Nenhum perfil ainda... crie o primeiro! 🌱",
-                font=("Arial", 13, "italic"), bg=BG, fg="#999999"
-            ).pack(pady=10)
+            tk.Label(main, text="Nenhum perfil ainda… crie o primeiro! 🌱",
+                     font=("Arial", 13, "italic"), bg=BG, fg="#999999").pack(pady=10)
         else:
-            lista_frame = tk.Frame(main_frame, bg=BG)
-            lista_frame.pack(pady=5)
+            lista = tk.Frame(main, bg=BG)
+            lista.pack(pady=4)
             for nome in nomes:
-                jog = self.gerenciador.carregar_jogadora(nome)
-                linha = tk.Frame(lista_frame, bg=BG)
+                jog  = self.gerenciador.carregar_jogadora(nome)
+                linha = tk.Frame(lista, bg=BG)
                 linha.pack(pady=4)
                 tk.Button(
                     linha,
                     text=f"👤 {nome}  —  Nível {jog.level}  —  {jog.titulo()}",
-                    font=("Arial", 12, "bold"), bg=LILAC, fg="white", width=34,
+                    font=("Arial", 12, "bold"), bg=LILAC, fg="white", width=36,
                     command=lambda n=nome: self.escolher_perfil(n)
                 ).pack(side="left", padx=5)
                 tk.Button(
@@ -353,234 +549,376 @@ class KawaiiMemoryGame:
                     command=lambda n=nome: self.apagar_perfil(n)
                 ).pack(side="left")
 
-        # ----- CRIAR NOVO PERFIL -----
-        criar_frame = tk.Frame(main_frame, bg=BG)
-        criar_frame.pack(pady=(20, 5))
-        tk.Label(
-            criar_frame, text="➕ Nome do novo perfil:",
-            font=("Arial", 13, "bold"), bg=BG, fg="#7B2CBF"
-        ).pack(side="left", padx=5)
-        tk.Entry(
-            criar_frame, font=("Arial", 14), width=16, textvariable=self.novo_perfil
-        ).pack(side="left", padx=5)
-        tk.Button(
-            criar_frame, text="Criar",
-            font=("Arial", 12, "bold"), bg=MINT, fg="#2D3142", width=8,
-            command=self.criar_perfil
-        ).pack(side="left", padx=5)
+        # criar novo perfil
+        criar = tk.Frame(main, bg=BG)
+        criar.pack(pady=(18, 5))
+        tk.Label(criar, text="➕ Nome do novo perfil:",
+                 font=("Arial", 13, "bold"), bg=BG, fg=VIOLET).pack(side="left", padx=5)
+        tk.Entry(criar, font=("Arial", 14), width=16,
+                 textvariable=self.novo_perfil).pack(side="left", padx=5)
+        tk.Button(criar, text="Criar",
+                  font=("Arial", 12, "bold"), bg=MINT, fg=DARK_TEXT, width=8,
+                  command=self.criar_perfil).pack(side="left", padx=5)
 
-        # ----- BOTÕES DE BAIXO -----
-        botoes_frame = tk.Frame(main_frame, bg=BG)
-        botoes_frame.pack(pady=25)
+        botoes = tk.Frame(main, bg=BG)
+        botoes.pack(pady=20)
         if nomes:
-            tk.Button(
-                botoes_frame, text="📊 COMPARAR PERFIS",
-                font=("Arial", 13, "bold"), bg=BLUE, fg="white", width=20,
-                command=self.comparar_perfis
-            ).pack(pady=6)
-            tk.Button(
-                botoes_frame, text="🏆 RANKING GERAL",
-                font=("Arial", 12, "bold"), bg=YELLOW, fg="#2D3142", width=20,
-                command=self.show_ranking
-            ).pack(pady=4)
-        tk.Button(
-            botoes_frame, text="♻️ RESETAR TUDO",
-            font=("Arial", 12, "bold"), bg=RED, fg="white", width=20,
-            command=self.resetar_tudo
-        ).pack(pady=(12, 4))
-        tk.Button(
-            botoes_frame, text="🚪 SAIR",
-            font=("Arial", 12, "bold"), bg=CORAL, fg="white", width=20,
-            command=self.sair_do_jogo
-        ).pack(pady=4)
+            tk.Button(botoes, text="📊 COMPARAR PERFIS",
+                      font=("Arial", 13, "bold"), bg=BLUE, fg="white", width=22,
+                      command=self.comparar_perfis).pack(pady=5)
+            tk.Button(botoes, text="🏆 RANKING GERAL",
+                      font=("Arial", 12, "bold"), bg=YELLOW, fg=DARK_TEXT, width=22,
+                      command=self.show_ranking).pack(pady=4)
+        tk.Button(botoes, text="♻️ RESETAR TUDO",
+                  font=("Arial", 12, "bold"), bg=RED, fg="white", width=22,
+                  command=self.resetar_tudo).pack(pady=(10, 4))
+        tk.Button(botoes, text="🚪 SAIR",
+                  font=("Arial", 12, "bold"), bg=CORAL, fg="white", width=22,
+                  command=self.sair_do_jogo).pack(pady=4)
 
     def criar_perfil(self):
-        """➕ Cria um perfil novo a partir do nome digitado."""
         nome = self.novo_perfil.get().strip()
-        if nome == "":
+        if not nome:
             messagebox.showinfo("Ops!", "Digite um nome pro perfil. 🌸")
             return
         if self.gerenciador.existe(nome):
             messagebox.showinfo("Ops!", f"Já existe um perfil '{nome}'. 💭")
             return
-        nova = Jogadora(nome)
-        self.gerenciador.salvar_jogadora(nova)
+        self.gerenciador.salvar_jogadora(Jogadora(nome))
         self.novo_perfil.set("")
         self.escolher_perfil(nome)
 
-    def escolher_perfil(self, nome):
-        """✅ Define o perfil ativo e vai pra tela inicial do jogo."""
+    def escolher_perfil(self, nome: str):
         self.jogadora = self.gerenciador.carregar_jogadora(nome)
         self.home()
 
-    def apagar_perfil(self, nome):
-        """🗑️ Apaga um perfil (com confirmação)."""
-        resposta = messagebox.askyesno(
-            "Apagar perfil",
-            f"Apagar o perfil '{nome}' para sempre? 🌙\n"
-            "Todo o progresso dele será perdido."
-        )
-        if resposta:
+    def apagar_perfil(self, nome: str):
+        if messagebox.askyesno("Apagar perfil",
+                               f"Apagar '{nome}' para sempre? 🌙\nTodo o progresso será perdido."):
             self.gerenciador.apagar(nome)
-            if self.jogadora is not None and self.jogadora.nome == nome:
+            if self.jogadora and self.jogadora.nome == nome:
                 self.jogadora = None
             self.tela_perfis()
 
-    # -------------------------------------------------
-    # TELA DE COMPARAÇÃO
-    # -------------------------------------------------
-
+    # ─────────────────────────────────────────────────────────────
+    # COMPARAR PERFIS
+    # ─────────────────────────────────────────────────────────────
     def comparar_perfis(self):
-        """📊 Todos os perfis lado a lado, do maior XP pro menor."""
         self.clear()
-        main_frame = tk.Frame(self.root, bg=BG)
-        main_frame.pack(fill="both", expand=True)
-
-        tk.Label(
-            main_frame, text="📊 COMPARAR PERFIS 📊",
-            font=("Comic Sans MS", 30, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=20)
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
+        tk.Label(main, text="📊 COMPARAR PERFIS 📊",
+                 font=("Comic Sans MS", 28, "bold"), bg=BG, fg=DEEP_RED).pack(pady=20)
 
         nomes = self.gerenciador.nomes()
         if not nomes:
-            tk.Label(
-                main_frame, text="Nenhum perfil pra comparar ainda... 🌱",
-                font=("Arial", 14), bg=BG, fg="#7B2CBF"
-            ).pack(pady=40)
+            tk.Label(main, text="Nenhum perfil pra comparar ainda… 🌱",
+                     font=("Arial", 14), bg=BG, fg=VIOLET).pack(pady=40)
         else:
-            jogadoras = [self.gerenciador.carregar_jogadora(n) for n in nomes]
-            jogadoras.sort(key=lambda j: j.xp, reverse=True)
-
-            tabela = tk.Frame(main_frame, bg=LIGHT_PINK, relief="raised", bd=3)
+            jogadoras = sorted(
+                [self.gerenciador.carregar_jogadora(n) for n in nomes],
+                key=lambda j: j.xp, reverse=True
+            )
+            tabela = tk.Frame(main, bg=LIGHT_PINK, relief="raised", bd=3)
             tabela.pack(padx=30, pady=15, fill="both")
             medalhas = {0: "🥇", 1: "🥈", 2: "🥉"}
             for pos, jog in enumerate(jogadoras):
-                medalha = medalhas.get(pos, f"{pos+1}º")
-                cor = YELLOW if pos == 0 else LIGHT_PINK
+                cor   = YELLOW if pos == 0 else LIGHT_PINK
                 texto = (
-                    f"{medalha}  👤 {jog.nome}   |   {jog.titulo()}   |   "
-                    f"⭐ Nível {jog.level}   |   💜 XP {jog.xp}   |   "
-                    f"🏆 {jog.stats['games_won']} vitórias"
+                    f"{medalhas.get(pos, f'{pos+1}º')}  👤 {jog.nome}  |  "
+                    f"{jog.titulo()}  |  ⭐ Nível {jog.level}  |  "
+                    f"💜 XP {jog.xp}  |  🏆 {jog.stats['games_won']} vitórias"
                 )
-                tk.Label(
-                    tabela, text=texto,
-                    font=("Arial", 12, "bold"), bg=cor, fg="#2D3142"
-                ).pack(padx=10, pady=6, fill="x")
+                tk.Label(tabela, text=texto,
+                         font=("Arial", 12, "bold"), bg=cor, fg=DARK_TEXT).pack(
+                    padx=10, pady=6, fill="x")
 
-        self._botao_voltar(main_frame, self.tela_perfis)
+        self._botao_voltar(main, self.tela_perfis)
 
-    # -------------------------------------------------
-    # RESETAR TUDO / RESETAR RANKING / SAIR
-    # -------------------------------------------------
-
+    # ─────────────────────────────────────────────────────────────
+    # RESETAR
+    # ─────────────────────────────────────────────────────────────
     def resetar_tudo(self):
-        """♻️ Apaga TODOS os perfis + ranking + partida salva."""
-        resposta = messagebox.askyesno(
-            "♻️ Resetar tudo",
-            "Isso vai APAGAR para sempre:\n\n"
-            "• TODOS os perfis 👥\n"
-            "• O ranking 🥇\n"
-            "• A partida salva 💾\n\n"
-            "Tem certeza, feiticeira? 🌙"
-        )
-        if resposta:
+        if messagebox.askyesno("♻️ Resetar tudo",
+                               "Isso vai APAGAR para sempre:\n\n"
+                               "• TODOS os perfis 👥\n• O ranking 🥇\n• A partida salva 💾\n\n"
+                               "Tem certeza, feiticeira? 🌙"):
             self.gerenciador.resetar_todos()
             self.ranking.resetar()
-            self._apagar_jogo_salvo()
+            FileManager.apagar(SAVE_GAME_FILE)
             self.jogadora = None
-            messagebox.showinfo("✨ Tudo limpo!", "Pronto! A Academia recomeçou do zero. 🌱")
+            messagebox.showinfo("✨ Tudo limpo!", "A Academia recomeçou do zero. 🌱")
             self.tela_perfis()
 
     def resetar_ranking(self):
-        """
-        🆕 ♻️ Apaga SÓ o ranking (top 10). Os perfis ficam intactos!
-
-        Detalhe importante: se o ranking JÁ estiver vazio, a gente
-        avisa com carinho em vez de fazer um reset "à toa". 🌙
-        Pra isso usamos o método esta_vazio() do molde Ranking.
-        """
         if self.ranking.esta_vazio():
-            messagebox.showinfo(
-                "Ranking vazio",
-                "O ranking já está vazinho — não tem nada pra apagar ainda. 🌱\n"
-                "Vença uma partida pra aparecer aqui! 🏆"
-            )
+            messagebox.showinfo("Ranking vazio",
+                                "O ranking já está vazio — vença uma partida primeiro! 🌸")
             return
-
-        resposta = messagebox.askyesno(
-            "♻️ Resetar ranking",
-            "Apagar TODO o ranking (top 10)?\n\n"
-            "Só o ranking some — os perfis e o progresso continuam intactos. 🥇"
-        )
-        if resposta:
+        if messagebox.askyesno("♻️ Resetar ranking",
+                               "Apagar todo o ranking (top 10)?\nOs perfis continuam intactos."):
             self.ranking.resetar()
-            messagebox.showinfo("✨ Pronto!", "Ranking zerado! Hora de uma nova disputa. 🌸")
-            self.show_ranking()  # recarrega a tela já vazia
+            messagebox.showinfo("✨ Pronto!", "Ranking zerado! Nova disputa começa agora. 🌸")
+            self.show_ranking()
 
     def sair_do_jogo(self):
-        """🚪 Fecha o jogo — mas só DEPOIS de confirmar."""
-        resposta = messagebox.askyesno(
-            "Sair do jogo",
-            "Quer mesmo fechar a Academia de Magia? 🌙✨"
-        )
-        if resposta:
+        if messagebox.askyesno("Sair", "Quer mesmo fechar a Academia de Magia? 🌙✨"):
             self.root.destroy()
 
-    # -------------------------------------------------
-    # GUARDAR / RECUPERAR A PARTIDA ATUAL
-    # -------------------------------------------------
-
-    def existe_jogo_salvo(self):
-        return os.path.exists(SAVE_GAME_FILE)
-
-    def _ler_jogo_salvo(self):
-        try:
-            with open(SAVE_GAME_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except:
-            return None
-
-    def _apagar_jogo_salvo(self):
-        if self.existe_jogo_salvo():
-            os.remove(SAVE_GAME_FILE)
-
-    def salvar_jogo(self):
-        """💾 Guarda a partida atual no baú."""
-        if self.start_time is not None:
-            tempo_total = self.tempo_acumulado + int(time.time() - self.start_time)
-        else:
-            tempo_total = self.tempo_acumulado
-
-        estado = {
-            "valores": self.values,
-            "encontradas": list(self.matched),
-            "linhas": self.rows,
-            "colunas": self.cols,
-            "pares": self.pairs,
-            "dificuldade": self.diff.get(),
-            "nome": self.jogadora.nome,
-            "tempo": tempo_total
-        }
-        with open(SAVE_GAME_FILE, "w", encoding="utf-8") as f:
-            json.dump(estado, f, ensure_ascii=False, indent=2)
-
+    # ─────────────────────────────────────────────────────────────
+    # HOME
+    # ─────────────────────────────────────────────────────────────
+    def home(self):
+        if not self.jogadora:
+            self.tela_perfis()
+            return
         self.start_time = None
-        messagebox.showinfo(
-            "💾 Jogo salvo!",
-            "Sua partida foi guardada no grimório! ✨\n\n"
-            "Quando voltar, é só clicar em '▶️ Continuar Jogo'. 🌸"
+        self.clear()
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
+
+        tk.Label(main, text="🎀 Memory Game Deluxe 🌸",
+                 font=("Comic Sans MS", 32, "bold"), bg=BG, fg=DEEP_RED).pack(pady=(16, 4))
+
+        # perfil + título
+        nivel_frame = tk.Frame(main, bg=PURPLE, relief="raised", bd=3)
+        nivel_frame.pack(padx=30, pady=4)
+        tk.Label(nivel_frame, text=f"👤 {self.jogadora.nome}",
+                 font=("Comic Sans MS", 17, "bold"), bg=PURPLE, fg="#4C0080").pack(padx=20, pady=(6, 0))
+        tk.Label(nivel_frame,
+                 text=f"👑 Nível {self.jogadora.level}  —  {self.jogadora.titulo()}",
+                 font=("Arial", 12, "bold"), bg=PURPLE, fg=VIOLET).pack(padx=20, pady=(0, 6))
+
+        # [9] barra de XP
+        self._barra_xp(main)
+
+        # stats
+        stats_frame = tk.Frame(main, bg=LILAC, relief="raised", bd=2)
+        stats_frame.pack(padx=30, pady=4)
+        tk.Label(
+            stats_frame,
+            text=(f"💜 XP: {self.jogadora.xp}  |  "
+                  f"🎮 Jogos: {self.jogadora.stats['games_played']}  |  "
+                  f"🏆 Vitórias: {self.jogadora.stats['games_won']}"),
+            font=("Arial", 11, "bold"), bg=LILAC, fg="#4C0080"
+        ).pack(padx=10, pady=7)
+
+        # mascote
+        mascote = tk.Frame(main, bg=PEACH, relief="raised", bd=2)
+        mascote.pack(padx=30, pady=4)
+        tk.Label(mascote,
+                 text=f"🦋 Cirilla: {random.choice(['Pronta pra treinar a memória? 🎀','Bora subir de nível? ✨','Você consegue, feiticeira! 🌸'])}",
+                 font=("Arial", 11, "italic"), bg=PEACH, fg=DARK_TEXT).pack(padx=10, pady=5)
+
+        # dificuldade + tema
+        config_frame = tk.Frame(main, bg=BG)
+        config_frame.pack(pady=6)
+
+        tk.Label(config_frame, text="Dificuldade:",
+                 font=("Arial", 12, "bold"), bg=BG, fg=VIOLET).grid(row=0, column=0, padx=8)
+        diff_inner = tk.Frame(config_frame, bg=BG)
+        diff_inner.grid(row=0, column=1, padx=8)
+        for d in Dificuldade:
+            tk.Radiobutton(diff_inner, text=d.value, variable=self.diff, value=d.value,
+                           font=("Arial", 11), bg=BG, activebackground=PINK).pack(side="left", padx=6)
+
+        tk.Label(config_frame, text="Tema das cartas:",
+                 font=("Arial", 12, "bold"), bg=BG, fg=VIOLET).grid(row=1, column=0, padx=8, pady=4)
+        tema_inner = tk.Frame(config_frame, bg=BG)
+        tema_inner.grid(row=1, column=1, padx=8, pady=4)
+        for nome_tema in TEMAS:
+            tk.Radiobutton(tema_inner, text=nome_tema, variable=self.tema_atual,
+                           value=nome_tema, font=("Arial", 10), bg=BG,
+                           activebackground=MINT).pack(side="left", padx=5)
+
+        # botões
+        botoes = tk.Frame(main, bg=BG)
+        botoes.pack(pady=8)
+
+        tk.Label(botoes, text="▶️ Jogar",
+                 font=("Arial", 11, "bold"), bg=BG, fg=DEEP_RED).pack(pady=(0, 2))
+        tk.Button(botoes, text="🎮 JOGAR",
+                  font=("Arial", 13, "bold"), bg=PINK, fg="white", width=22,
+                  command=self.new_game).pack(pady=3)
+        if FileManager.existe(SAVE_GAME_FILE):
+            tk.Button(botoes, text="▶️ CONTINUAR JOGO",
+                      font=("Arial", 12, "bold"), bg=MINT, fg=DARK_TEXT, width=22,
+                      command=self.continuar_jogo).pack(pady=3)
+
+        tk.Label(botoes, text="⚙️ Gerenciar",
+                 font=("Arial", 11, "bold"), bg=BG, fg=DEEP_RED).pack(pady=(10, 2))
+        for texto, cor, cmd in [
+            ("📊 COMPARAR PERFIS",   BLUE,   self.comparar_perfis),
+            ("👑 MEU PERFIL",        LILAC,  self.show_profile),
+            ("🏆 RANKING",           YELLOW, self.show_ranking),
+            ("⭐ CONQUISTAS",         PEACH,  self.show_achievements),
+            ("📜 HISTÓRICO",         PURPLE, self.show_historico),
+            ("👥 TROCAR PERFIL",     CORAL,  self.tela_perfis),
+        ]:
+            fg = DARK_TEXT if cor in (YELLOW, PEACH) else "white"
+            tk.Button(botoes, text=texto, font=("Arial", 11, "bold"),
+                      bg=cor, fg=fg, width=22, command=cmd).pack(pady=2)
+
+    # ─────────────────────────────────────────────────────────────
+    # PERFIL / RANKING / CONQUISTAS / HISTÓRICO
+    # ─────────────────────────────────────────────────────────────
+    def show_profile(self):
+        self.clear()
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
+        tk.Label(main, text="👑 MEU PERFIL 👑",
+                 font=("Comic Sans MS", 30, "bold"), bg=BG, fg=DEEP_RED).pack(pady=18)
+
+        frame = tk.Frame(main, bg=LIGHT_PINK, relief="raised", bd=3)
+        frame.pack(padx=30, pady=12, fill="both")
+        melhor = self.jogadora.stats["best_time"]
+        info = (
+            f"👤 Nome: {self.jogadora.nome}\n"
+            f"👑 Título: {self.jogadora.titulo()}\n"
+            f"⭐ Nível: {self.jogadora.level}\n"
+            f"💜 XP Total: {self.jogadora.xp}\n"
+            f"🎮 Jogos jogados: {self.jogadora.stats['games_played']}\n"
+            f"🏆 Vitórias: {self.jogadora.stats['games_won']}\n"
+            f"⏱️ Melhor tempo: {melhor}s" if melhor else "⏱️ Melhor tempo: —"
         )
+        tk.Label(frame, text=info, font=("Arial", 13),
+                 bg=LIGHT_PINK, fg=DARK_TEXT, justify="left").pack(padx=20, pady=16)
+
+        self._barra_xp(frame)
+
+        if self.jogadora.achievements:
+            tk.Label(frame, text="Suas Conquistas 🏆:",
+                     font=("Arial", 12, "bold"), bg=LIGHT_PINK, fg=DEEP_RED).pack()
+            for c in self.jogadora.achievements:
+                tk.Label(frame, text=f"  ✓ {c}",
+                         font=("Arial", 11), bg=LIGHT_PINK, fg="#4C0080").pack()
+
+        self._botao_voltar(main, self.home)
+
+    def show_ranking(self):
+        self.clear()
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
+        tk.Label(main, text="🏆 RANKING TOP 10 🏆",
+                 font=("Comic Sans MS", 30, "bold"), bg=BG, fg=DEEP_RED).pack(pady=18)
+        self._subtitulo_perfil(main)
+
+        if self.ranking.esta_vazio():
+            tk.Label(main, text="Sem dados ainda… Seja a primeira! 🌸",
+                     font=("Arial", 14), bg=BG, fg=VIOLET).pack(pady=50)
+        else:
+            frame = tk.Frame(main, bg=LIGHT_PINK, relief="raised", bd=3)
+            frame.pack(padx=30, pady=16, fill="both")
+            medalhas = {0: "🥇", 1: "🥈", 2: "🥉"}
+            cores    = {0: YELLOW, 1: PEACH, 2: CORAL}
+            for i, p in enumerate(self.ranking.lista[:10]):
+                bg = cores.get(i, LIGHT_PINK)
+                tk.Label(
+                    frame,
+                    text=f"{medalhas.get(i, f'{i+1:2d}.')} {p['name']} — Score: {p['score']} — ⏱️ {p['time']}s",
+                    font=("Arial", 12, "bold"), bg=bg, fg=DARK_TEXT
+                ).pack(padx=10, pady=7, fill="x")
+
+        tk.Button(main, text="♻️ Resetar Ranking",
+                  font=("Arial", 11, "bold"), bg=RED, fg="white", width=22,
+                  command=self.resetar_ranking).pack(pady=(8, 0))
+        destino = self.home if self.jogadora else self.tela_perfis
+        self._botao_voltar(main, destino)
+
+    def show_achievements(self):
+        self.clear()
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
+        tk.Label(main, text="⭐ CONQUISTAS ⭐",
+                 font=("Comic Sans MS", 30, "bold"), bg=BG, fg=DEEP_RED).pack(pady=18)
+        self._subtitulo_perfil(main)
+
+        frame = tk.Frame(main, bg=LIGHT_PINK, relief="raised", bd=3)
+        frame.pack(padx=30, pady=16, fill="both")
+        todas = [
+            "Primeira Vitória 🏆", "Velocista ⚡", "Mestre da Memória 🧙‍♀️",
+            "Campeã Fácil 🌸",     "Campeã Médio 💜", "Campeã Difícil 🔥",
+            "10 Vitórias 🎉",       "Nivel 10 👑",    "Perfecta 💯",
+            "Speedrun Master ⚡⚡⚡", "Streak Master 🔥🔥🔥",
+        ]
+        for c in todas:
+            if c in self.jogadora.achievements:
+                tk.Label(frame, text=f"✓ {c}",
+                         font=("Arial", 11, "bold"), bg="#FFD6A5", fg=DARK_TEXT).pack(
+                    padx=10, pady=5, fill="x")
+            else:
+                tk.Label(frame, text=f"🔒 {c}",
+                         font=("Arial", 11), bg=LIGHT_PINK, fg="#999999").pack(
+                    padx=10, pady=5, fill="x")
+
+        self._botao_voltar(main, self.home)
+
+    def show_historico(self):
+        """📜 Últimas MAX_HISTORICO partidas da jogadora ativa."""
+        self.clear()
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
+        tk.Label(main, text="📜 HISTÓRICO DE PARTIDAS 📜",
+                 font=("Comic Sans MS", 26, "bold"), bg=BG, fg=DEEP_RED).pack(pady=18)
+        self._subtitulo_perfil(main)
+
+        hist = self.jogadora.historico
+        if not hist:
+            tk.Label(main, text="Nenhuma partida registrada ainda… Jogue primeiro! 🎮",
+                     font=("Arial", 13, "italic"), bg=BG, fg=VIOLET).pack(pady=40)
+        else:
+            frame = tk.Frame(main, bg=LIGHT_PINK, relief="raised", bd=3)
+            frame.pack(padx=30, pady=12, fill="both")
+            cabecalho = "  #  |  Data & Hora          |  Dificuldade  |  Tempo  |  Resultado"
+            tk.Label(frame, text=cabecalho,
+                     font=("Courier", 11, "bold"), bg=LILAC, fg=DARK_TEXT).pack(
+                padx=8, pady=6, fill="x")
+            for i, h in enumerate(hist, 1):
+                resultado = "✅ Vitória" if h["vitoria"] else "❌ Derrota"
+                linha = (
+                    f"  {i}  |  {h['data']}  |  "
+                    f"{h['dificuldade']:<13}|  {h['tempo']:>4}s  |  {resultado}"
+                )
+                cor = MINT if h["vitoria"] else CORAL
+                tk.Label(frame, text=linha,
+                         font=("Courier", 11), bg=cor, fg=DARK_TEXT).pack(
+                    padx=8, pady=4, fill="x")
+
+        self._botao_voltar(main, self.home)
+
+    # ─────────────────────────────────────────────────────────────
+    # SALVAR / CARREGAR PARTIDA
+    # ─────────────────────────────────────────────────────────────
+    def salvar_jogo(self):
+        elapsed = (self.tempo_acumulado + int(time.time() - self.start_time)
+                   if self.start_time else self.tempo_acumulado)
+        estado = {
+            "valores":    [c.valor for c in self.cartas],
+            "combinadas": [c.indice for c in self.cartas if c.combinada],
+            "linhas":     self.rows,
+            "colunas":    self.cols,
+            "pares":      self.pairs,
+            "dificuldade": self.diff.get(),
+            "tema":        self.tema_atual.get(),
+            "nome":        self.jogadora.nome,
+            "tempo":       elapsed,
+            "streak":      self.streak,
+        }
+        FileManager.gravar(SAVE_GAME_FILE, estado)
+        self.start_time = None
+        messagebox.showinfo("💾 Jogo salvo!",
+                            "Partida guardada no grimório! ✨\n"
+                            "Clique em '▶️ Continuar Jogo' quando voltar. 🌸")
         self.home()
 
     def continuar_jogo(self):
-        """▶️ Recomeça a partida de onde parou."""
-        if not self.existe_jogo_salvo():
-            messagebox.showinfo("Ops!", "Não encontrei nenhum jogo salvo. 🌙")
+        if not FileManager.existe(SAVE_GAME_FILE):
+            messagebox.showinfo("Ops!", "Nenhum jogo salvo encontrado. 🌙")
             self.home()
             return
-        estado = self._ler_jogo_salvo()
-        if estado is None:
-            messagebox.showinfo("Ops!", "O jogo salvo está ilegível. 😢")
+        estado = FileManager.ler(SAVE_GAME_FILE)
+        if not estado:
+            messagebox.showinfo("Ops!", "O arquivo salvo está ilegível. 😢")
             self.home()
             return
         nome_salvo = estado.get("nome")
@@ -588,545 +926,351 @@ class KawaiiMemoryGame:
             self.jogadora = self.gerenciador.carregar_jogadora(nome_salvo)
         self.new_game(estado_salvo=estado)
 
-    # -------------------------------------------------
-    # 🛡️ SEGURANÇA: sair/recomeçar a partida com aviso
-    # -------------------------------------------------
-
+    # ─────────────────────────────────────────────────────────────
+    # SEGURANÇA: sair / reiniciar durante a partida
+    # ─────────────────────────────────────────────────────────────
     def voltar_da_partida(self):
-        """🛡️ "Voltar" durante o jogo → pergunta antes de perder a partida."""
-        resposta = messagebox.askyesno(
-            "Voltar pro início",
-            "Se você voltar agora, perde esta partida (a não ser que salve antes).\n"
-            "Quer mesmo voltar? 🌙"
-        )
-        if resposta:
+        if messagebox.askyesno("Voltar",
+                               "Se voltar agora, perde a partida (salve antes).\nQuer mesmo voltar? 🌙"):
             self.home()
 
     def reiniciar_partida(self):
-        """🛡️ "Novo Jogo" durante o jogo → pergunta antes de recomeçar."""
-        resposta = messagebox.askyesno(
-            "Novo jogo",
-            "Começar de novo vai perder a partida atual. Tem certeza? 🔄"
-        )
-        if resposta:
+        if messagebox.askyesno("Novo jogo",
+                               "Recomeçar vai perder a partida atual. Tem certeza? 🔄"):
             self.new_game()
 
-    # -------------------------------------------------
-    # TELA INICIAL (do perfil ativo)
-    # -------------------------------------------------
-
-    def home(self):
-        """🏠 Tela inicial da maga que está logada."""
-        if self.jogadora is None:
-            self.tela_perfis()
-            return
-
-        self.start_time = None
-        self.clear()
-        main_frame = tk.Frame(self.root, bg=BG)
-        main_frame.pack(fill="both", expand=True)
-
-        # ----- TÍTULO -----
-        tk.Label(
-            main_frame, text="🎀 Memory Game Deluxe 🌸",
-            font=("Comic Sans MS", 34, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=(18, 6))
-
-        # ----- PERFIL ATIVO + NÍVEL (destacado) -----
-        nivel_frame = tk.Frame(main_frame, bg=PURPLE, relief="raised", bd=3)
-        nivel_frame.pack(padx=30, pady=6)
-        tk.Label(
-            nivel_frame, text=f"👤 {self.jogadora.nome}",
-            font=("Comic Sans MS", 18, "bold"), bg=PURPLE, fg="#4C0080"
-        ).pack(padx=20, pady=(8, 0))
-        tk.Label(
-            nivel_frame,
-            text=f"👑 Nível Geral: {self.jogadora.level}  —  {self.jogadora.titulo()}",
-            font=("Arial", 13, "bold"), bg=PURPLE, fg="#7B2CBF"
-        ).pack(padx=20, pady=(0, 8))
-
-        # ----- MASCOTE -----
-        mascot_text = random.choice([
-            "🎀 Pronta pra treinar a memória?",
-            "✨ Bora subir de nível?",
-            "🌸 Você consegue, feiticeira!"
-        ])
-        mascot_frame = tk.Frame(main_frame, bg=PEACH, relief="raised", bd=2)
-        mascot_frame.pack(padx=30, pady=6)
-        tk.Label(
-            mascot_frame, text=f"🦋 Cirilla: {mascot_text}",
-            font=("Arial", 11, "italic"), bg=PEACH, fg="#2D3142"
-        ).pack(padx=10, pady=6)
-
-        # ----- ESTATÍSTICAS -----
-        stats_frame = tk.Frame(main_frame, bg=LILAC, relief="raised", bd=2)
-        stats_frame.pack(padx=30, pady=6)
-        stats_text = (
-            f"💜 XP: {self.jogadora.xp} | "
-            f"🎮 Jogos: {self.jogadora.stats['games_played']} | "
-            f"🏆 Vitórias: {self.jogadora.stats['games_won']}"
-        )
-        tk.Label(
-            stats_frame, text=stats_text,
-            font=("Arial", 12, "bold"), bg=LILAC, fg="#4C0080"
-        ).pack(padx=10, pady=8)
-
-        # ----- DIFICULDADE -----
-        tk.Label(
-            main_frame, text="Escolha a dificuldade:",
-            font=("Arial", 13, "bold"), bg=BG, fg="#7B2CBF"
-        ).pack(pady=(10, 4))
-        diff_frame = tk.Frame(main_frame, bg=BG)
-        diff_frame.pack()
-        for diff in ["Fácil", "Médio", "Difícil"]:
-            tk.Radiobutton(
-                diff_frame, text=diff, variable=self.diff, value=diff,
-                font=("Arial", 12), bg=BG, activebackground=PINK
-            ).pack(side="left", padx=10)
-
-        # ----- BOTÕES AGRUPADOS POR FUNÇÃO -----
-        button_frame = tk.Frame(main_frame, bg=BG)
-        button_frame.pack(pady=10)
-
-        # >>> Grupo JOGAR
-        tk.Label(
-            button_frame, text="▶️ Jogar",
-            font=("Arial", 11, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=(0, 2))
-        tk.Button(
-            button_frame, text="🎮 JOGAR",
-            font=("Arial", 14, "bold"), bg=PINK, fg="white", width=20,
-            command=self.new_game
-        ).pack(pady=3)
-        if self.existe_jogo_salvo():
-            tk.Button(
-                button_frame, text="▶️ CONTINUAR JOGO",
-                font=("Arial", 13, "bold"), bg=MINT, fg="#2D3142", width=20,
-                command=self.continuar_jogo
-            ).pack(pady=3)
-
-        # >>> Grupo GERENCIAR
-        tk.Label(
-            button_frame, text="⚙️ Gerenciar",
-            font=("Arial", 11, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=(10, 2))
-        tk.Button(
-            button_frame, text="📊 COMPARAR PERFIS",
-            font=("Arial", 11, "bold"), bg=BLUE, fg="white", width=20,
-            command=self.comparar_perfis
-        ).pack(pady=2)
-        tk.Button(
-            button_frame, text="👑 MEU PERFIL",
-            font=("Arial", 11, "bold"), bg=LILAC, fg="white", width=20,
-            command=self.show_profile
-        ).pack(pady=2)
-        tk.Button(
-            button_frame, text="🏆 RANKING",
-            font=("Arial", 11, "bold"), bg=YELLOW, fg="#2D3142", width=20,
-            command=self.show_ranking
-        ).pack(pady=2)
-        tk.Button(
-            button_frame, text="⭐ CONQUISTAS",
-            font=("Arial", 11, "bold"), bg=PEACH, fg="#2D3142", width=20,
-            command=self.show_achievements
-        ).pack(pady=2)
-        tk.Button(
-            button_frame, text="👥 TROCAR PERFIL",
-            font=("Arial", 11, "bold"), bg=CORAL, fg="white", width=20,
-            command=self.tela_perfis
-        ).pack(pady=(8, 2))
-
-    # -------------------------------------------------
-    # TELA DE PERFIL / RANKING / CONQUISTAS
-    # -------------------------------------------------
-
-    def show_profile(self):
-        """👑 Detalhe do perfil ATIVO."""
-        self.clear()
-        main_frame = tk.Frame(self.root, bg=BG)
-        main_frame.pack(fill="both", expand=True)
-
-        tk.Label(
-            main_frame, text="👑 MEU PERFIL 👑",
-            font=("Comic Sans MS", 32, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=20)
-
-        profile_frame = tk.Frame(main_frame, bg=LIGHT_PINK, relief="raised", bd=3)
-        profile_frame.pack(padx=30, pady=20, fill="both")
-        profile_info = f"""
-👤 Nome: {self.jogadora.nome}
-👑 Título: {self.jogadora.titulo()}
-⭐ Nível Geral: {self.jogadora.level}
-💜 XP Total: {self.jogadora.xp}
-🎮 Jogos Jogados: {self.jogadora.stats['games_played']}
-🏆 Vitórias: {self.jogadora.stats['games_won']}
-⏱️ Melhor Tempo: {self.jogadora.stats['best_time']}s (se houver)
-🎀 Conquistas: {len(self.jogadora.achievements)}/10
-        """
-        tk.Label(
-            profile_frame, text=profile_info, font=("Arial", 14),
-            bg=LIGHT_PINK, fg="#2D3142", justify="left"
-        ).pack(padx=20, pady=20)
-
-        if self.jogadora.achievements:
-            tk.Label(
-                profile_frame, text="Suas Conquistas 🏆:",
-                font=("Arial", 12, "bold"), bg=LIGHT_PINK, fg="#A4133C"
-            ).pack()
-            for conquista in self.jogadora.achievements:
-                tk.Label(
-                    profile_frame, text=f"  ✓ {conquista}",
-                    font=("Arial", 11), bg=LIGHT_PINK, fg="#4C0080"
-                ).pack()
-
-        self._botao_voltar(main_frame, self.home)
-
-    def show_ranking(self):
-        """🏆 Top 10 com medalhas e cores (+ botão de resetar SÓ o ranking)."""
-        self.clear()
-        main_frame = tk.Frame(self.root, bg=BG)
-        main_frame.pack(fill="both", expand=True)
-
-        tk.Label(
-            main_frame, text="🏆 RANKING TOP 10 🏆",
-            font=("Comic Sans MS", 32, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=20)
-        self._subtitulo_perfil(main_frame)
-
-        lista = self.ranking.lista
-        if not lista:
-            tk.Label(
-                main_frame,
-                text="Sem dados de ranking ainda... Seja a primeira! 🌸",
-                font=("Arial", 14), bg=BG, fg="#7B2CBF"
-            ).pack(pady=50)
-        else:
-            rank_frame = tk.Frame(main_frame, bg=LIGHT_PINK, relief="raised", bd=3)
-            rank_frame.pack(padx=30, pady=20, fill="both")
-            medals = {0: "🥇", 1: "🥈", 2: "🥉"}
-            for i, player in enumerate(lista[:10]):
-                medal = medals.get(i, f"{i+1:2d}. ")
-                if i == 0:
-                    bg_color, fg_color = YELLOW, "#000000"
-                elif i == 1:
-                    bg_color, fg_color = PEACH, "#000000"
-                elif i == 2:
-                    bg_color, fg_color = CORAL, "#000000"
-                else:
-                    bg_color, fg_color = LIGHT_PINK, "#2D3142"
-                tk.Label(
-                    rank_frame,
-                    text=f"{medal} {player['name']} — Score: {player['score']} — ⏱️ {player['time']}s",
-                    font=("Arial", 12, "bold"), bg=bg_color, fg=fg_color
-                ).pack(padx=10, pady=8, fill="x")
-
-        # 🆕 Botão pra resetar SÓ o ranking (os perfis continuam intactos)
-        tk.Button(
-            main_frame, text="♻️ Resetar Ranking",
-            font=("Arial", 11, "bold"), bg=RED, fg="white", width=20,
-            command=self.resetar_ranking
-        ).pack(pady=(10, 0))
-
-        # Volta pra home (se há perfil ativo) ou pra tela de perfis
-        destino = self.home if self.jogadora is not None else self.tela_perfis
-        self._botao_voltar(main_frame, destino)
-
-    def show_achievements(self):
-        """⭐ Conquistas (✓ e 🔒) do perfil ativo."""
-        self.clear()
-        main_frame = tk.Frame(self.root, bg=BG)
-        main_frame.pack(fill="both", expand=True)
-
-        tk.Label(
-            main_frame, text="⭐ CONQUISTAS ⭐",
-            font=("Comic Sans MS", 32, "bold"), bg=BG, fg="#A4133C"
-        ).pack(pady=20)
-        self._subtitulo_perfil(main_frame)
-
-        achiev_frame = tk.Frame(main_frame, bg=LIGHT_PINK, relief="raised", bd=3)
-        achiev_frame.pack(padx=30, pady=20, fill="both")
-        todas = [
-            "Primeira Vitória 🏆", "Velocista ⚡", "Mestre da Memória 🧙‍♀️",
-            "Campeã Fácil 🌸", "Campeã Médio 💜", "Campeã Difícil 🔥",
-            "10 Vitórias 🎉", "Nivel 10 👑", "Perfecta 💯",
-            "Speedrun Master ⚡⚡⚡"
-        ]
-        for conquista in todas:
-            if conquista in self.jogadora.achievements:
-                tk.Label(
-                    achiev_frame, text=f"✓ {conquista}",
-                    font=("Arial", 11, "bold"), bg="#FFD6A5", fg="#000000"
-                ).pack(padx=10, pady=5, fill="x")
-            else:
-                tk.Label(
-                    achiev_frame, text=f"🔒 {conquista}",
-                    font=("Arial", 11), bg=LIGHT_PINK, fg="#999999"
-                ).pack(padx=10, pady=5, fill="x")
-
-        self._botao_voltar(main_frame, self.home)
-
-    # -------------------------------------------------
-    # A PARTIDA EM SI
-    # -------------------------------------------------
-
-    def difficulty_size(self):
-        diffs = {"Fácil": (4, 4), "Médio": (4, 5), "Difícil": (6, 6)}
-        return diffs[self.diff.get()]
+    # ─────────────────────────────────────────────────────────────
+    # A PARTIDA
+    # ─────────────────────────────────────────────────────────────
+    def _dificuldade_atual(self) -> Dificuldade:
+        for d in Dificuldade:
+            if d.value == self.diff.get():
+                return d
+        return Dificuldade.FACIL
 
     def new_game(self, estado_salvo=None):
-        """🎮 Monta uma partida (nova OU continuação de um salvo)."""
         self.clear()
+        self.streak   = 0
+        self.primeira = None
+        self.segunda  = None
 
         if estado_salvo is None:
             self.jogadora.stats["games_played"] += 1
             self.gerenciador.salvar_jogadora(self.jogadora)
-            rows, cols = self.difficulty_size()
-            total = rows * cols
-            pairs = total // 2
-            icons = ICONS[:pairs]
-            self.values = icons * 2
-            random.shuffle(self.values)
-            self.matched = set()
+            rows, cols = GRADE_DIFICULDADE[self._dificuldade_atual()]
+            pairs      = (rows * cols) // 2
+            icons      = TEMAS[self.tema_atual.get()][:pairs]
+            valores    = icons * 2
+            random.shuffle(valores)
+            self.cartas         = [Carta(i, v) for i, v in enumerate(valores)]
             self.tempo_acumulado = 0
         else:
-            rows = estado_salvo["linhas"]
-            cols = estado_salvo["colunas"]
-            pairs = estado_salvo["pares"]
-            total = rows * cols
-            self.values = estado_salvo["valores"]
-            self.matched = set(estado_salvo["encontradas"])
-            self.tempo_acumulado = estado_salvo["tempo"]
+            rows   = estado_salvo["linhas"]
+            cols   = estado_salvo["colunas"]
+            pairs  = estado_salvo["pares"]
             self.diff.set(estado_salvo["dificuldade"])
+            self.tema_atual.set(estado_salvo.get("tema", "Kawaii 🎀"))
+            valores = estado_salvo["valores"]
+            combinadas = set(estado_salvo["combinadas"])
+            self.cartas = [Carta(i, v) for i, v in enumerate(valores)]
+            for c in self.cartas:
+                if c.indice in combinadas:
+                    c.marcar_combinada()
+            self.tempo_acumulado = estado_salvo["tempo"]
+            self.streak          = estado_salvo.get("streak", 0)
 
-        self.first = None
-        self.second = None
-        self.buttons = []
-        self.start_time = None
-        self.rows = rows
-        self.cols = cols
+        self.rows  = rows
+        self.cols  = cols
         self.pairs = pairs
-        found_inicial = len(self.matched) // 2
+        total      = rows * cols
+        self.start_time = None
+        found_ini  = sum(1 for c in self.cartas if c.combinada) // 2
 
-        main_frame = tk.Frame(self.root, bg=BG)
-        main_frame.pack(fill="both", expand=True)
+        # ── construção da tela ───────────────────────────────────
+        main = tk.Frame(self.root, bg=BG)
+        main.pack(fill="both", expand=True)
 
-        # ----- BARRA DE STATUS -----
-        status_frame = tk.Frame(main_frame, bg=LILAC, relief="raised", bd=2)
-        status_frame.pack(padx=20, pady=12, fill="x")
-        tk.Label(
-            status_frame,
-            text=f"👤 {self.jogadora.nome} | 👑 Nível {self.jogadora.level} | 📊 {self.diff.get()}",
-            font=("Arial", 12, "bold"), bg=LILAC, fg="#4C0080"
-        ).pack(side="left", padx=10, pady=8)
-        self.timer = tk.Label(
-            status_frame, text="⏱️ 00:00",
-            font=("Arial", 12, "bold"), bg=LILAC, fg="#7B2CBF"
-        )
-        self.timer.pack(side="right", padx=10, pady=8)
-        self.progress = tk.Label(
-            status_frame, text=f"🎁 Pares: {found_inicial}/{pairs}",
-            font=("Arial", 12, "bold"), bg=LILAC, fg="#A4133C"
-        )
-        self.progress.pack(side="right", padx=10, pady=8)
+        # status
+        status = tk.Frame(main, bg=LILAC, relief="raised", bd=2)
+        status.pack(padx=18, pady=10, fill="x")
+        tk.Label(status,
+                 text=f"👤 {self.jogadora.nome}  |  👑 Nível {self.jogadora.level}  |  📊 {self.diff.get()}  |  {self.tema_atual.get()}",
+                 font=("Arial", 11, "bold"), bg=LILAC, fg="#4C0080").pack(side="left", padx=10, pady=7)
+        self.timer = tk.Label(status, text="⏱️ 00:00",
+                              font=("Arial", 11, "bold"), bg=LILAC, fg=VIOLET)
+        self.timer.pack(side="right", padx=10)
+        self.progress_lbl = tk.Label(status, text=f"🎁 Pares: {found_ini}/{pairs}",
+                                     font=("Arial", 11, "bold"), bg=LILAC, fg=DEEP_RED)
+        self.progress_lbl.pack(side="right", padx=10)
 
-        # ----- 💡 COMO JOGAR -----
-        tk.Label(
-            main_frame,
-            text="💡 Vire duas cartas e tente formar pares iguais!",
-            font=("Arial", 11, "italic"), bg=BG, fg="#7B2CBF"
-        ).pack(pady=(6, 2))
+        # [9] barra de XP inline
+        xp_frame = tk.Frame(main, bg=BG)
+        xp_frame.pack(fill="x", padx=18, pady=(0, 2))
+        xp_atual = self.jogadora.xp_no_nivel_atual()
+        xp_max   = self.jogadora.xp_para_proximo()
+        pct      = xp_atual / xp_max
+        self.xp_canvas = tk.Canvas(xp_frame, width=500, height=16,
+                                   bg="#E8D5F5", highlightthickness=1,
+                                   highlightbackground=LILAC)
+        self.xp_canvas.pack(side="left", padx=8)
+        self.xp_canvas.create_rectangle(0, 0, int(500 * pct), 16, fill=LILAC, outline="")
+        self.xp_canvas.create_text(250, 8,
+                                   text=f"XP Nível {self.jogadora.level}: {xp_atual}/{xp_max}",
+                                   font=("Arial", 9, "bold"), fill=DARK_TEXT)
 
-        # ----- 🌊 FAIXA DA CIRILLA (fala sem pop-up!) -----
+        # streak display
+        self.streak_lbl = tk.Label(xp_frame,
+                                   text=f"🔥 Streak: {self.streak}",
+                                   font=("Arial", 10, "bold"), bg=BG, fg=DEEP_RED)
+        self.streak_lbl.pack(side="left", padx=10)
+
+        # dica
+        tk.Label(main, text="💡 Vire duas cartas e tente formar pares iguais!",
+                 font=("Arial", 10, "italic"), bg=BG, fg=VIOLET).pack(pady=(4, 0))
+
+        # mascote
         self.mascote_label = tk.Label(
-            main_frame, text="🦋 Cirilla: boa sorte! 💖",
-            font=("Arial", 12, "bold"), bg=PEACH, fg="#2D3142",
-            relief="raised", bd=2, width=46
+            main, text="🦋 Cirilla: boa sorte! 💖",
+            font=("Arial", 12, "bold"), bg=PEACH, fg=DARK_TEXT,
+            relief="raised", bd=2, width=52
         )
-        self.mascote_label.pack(pady=(0, 8), ipady=4)
+        self.mascote_label.pack(pady=(4, 6), ipady=3)
 
-        # ----- TABULEIRO -----
-        board_frame = tk.Frame(main_frame, bg=BG)
-        board_frame.pack(padx=20, pady=6)
-        colors = [PINK, BLUE, MINT, PEACH, YELLOW, LILAC, PURPLE, CORAL]
+        # tabuleiro
+        board = tk.Frame(main, bg=BG)
+        board.pack(padx=16, pady=4)
+        cores_btn = [PINK, BLUE, MINT, PEACH, YELLOW, LILAC, PURPLE, CORAL]
+        self.btns: list[tk.Button] = []
         for i in range(total):
             btn = tk.Button(
-                board_frame, text="", width=6, height=3,
-                font=("Arial", 24, "bold"),
-                bg=colors[i % len(colors)],
+                board, text="", width=5, height=2,
+                font=("Arial", 22, "bold"),
+                bg=cores_btn[i % len(cores_btn)],
                 activebackground="#FFFFFF", relief="raised", bd=2,
                 command=lambda x=i: self.flip(x)
             )
-            btn.grid(row=i // cols, column=i % cols, padx=6, pady=6)
-            self.buttons.append(btn)
+            btn.grid(row=i // cols, column=i % cols, padx=5, pady=5)
+            self.btns.append(btn)
 
-        # ----- BOTÕES DE CONTROLE (🛡️ com aviso de segurança) -----
-        control_frame = tk.Frame(main_frame, bg=BG)
-        control_frame.pack(pady=12)
-        tk.Button(
-            control_frame, text="🔙 Voltar",
-            font=("Arial", 10, "bold"), bg=BLUE, width=14,
-            command=self.voltar_da_partida
-        ).pack(side="left", padx=5)
-        tk.Button(
-            control_frame, text="🔄 Novo Jogo",
-            font=("Arial", 10, "bold"), bg=PINK, width=14,
-            command=self.reiniciar_partida
-        ).pack(side="left", padx=5)
-        tk.Button(
-            control_frame, text="💾 Salvar e Sair",
-            font=("Arial", 10, "bold"), bg=MINT, width=14,
-            command=self.salvar_jogo
-        ).pack(side="left", padx=5)
-        tk.Button(
-            control_frame, text="🚪 Sair",
-            font=("Arial", 10, "bold"), bg=CORAL, width=14,
-            command=self.sair_do_jogo
-        ).pack(side="left", padx=5)
+        # controles
+        ctrl = tk.Frame(main, bg=BG)
+        ctrl.pack(pady=10)
+        for texto, cor, cmd in [
+            ("🔙 Voltar",       BLUE,  self.voltar_da_partida),
+            ("🔄 Novo Jogo",    PINK,  self.reiniciar_partida),
+            ("💾 Salvar e Sair", MINT,  self.salvar_jogo),
+            ("🚪 Sair",         CORAL, self.sair_do_jogo),
+        ]:
+            tk.Button(ctrl, text=texto, font=("Arial", 10, "bold"),
+                      bg=cor, width=14, command=cmd).pack(side="left", padx=5)
 
         if estado_salvo is None:
             self.show_cards_memory()
         else:
-            self.restaurar_jogo()
+            self._restaurar_tabuleiro()
 
-    def restaurar_jogo(self):
-        """♻️ Prepara o tabuleiro de um jogo CONTINUADO."""
-        for i, btn in enumerate(self.buttons):
-            if i in self.matched:
-                btn.config(text=self.values[i], state="disabled", bg="#FDE2E4")
+    # ── tabuleiro (restaurar jogo salvo) ────────────────────────
+    def _restaurar_tabuleiro(self):
+        for carta in self.cartas:
+            if carta.combinada:
+                self.btns[carta.indice].config(
+                    text=carta.valor, state="disabled", bg="#FDE2E4")
         self.mascote_label.config(text="🦋 Cirilla: bem-vinda de volta! 🌙", bg=PEACH)
         self.start_time = time.time()
         self.update_timer()
 
+    # ── memorização ──────────────────────────────────────────────
     def show_cards_memory(self):
-        """🧠 Mostra as cartas e faz a CONTAGEM REGRESSIVA (sem pop-up)."""
-        for i, btn in enumerate(self.buttons):
-            btn.config(text=self.values[i], state="disabled")
-        self.segundos_memorizar = 5
-        self._contar_memorizacao()
+        for i, carta in enumerate(self.cartas):
+            self.btns[i].config(text=carta.valor, state="disabled")
+        self.segundos_memo = 5
+        self._contar_memo()
 
-    def _contar_memorizacao(self):
-        """🌊 Conta 5…4…3… na faixa da Cirilla e depois esconde as cartas."""
+    def _contar_memo(self):
         if not self.mascote_label.winfo_exists():
             return
-        if self.segundos_memorizar > 0:
+        if self.segundos_memo > 0:
             self.mascote_label.config(
-                text=f"🧠 Memorize! Escondendo em {self.segundos_memorizar}…",
-                bg=YELLOW
-            )
-            self.segundos_memorizar -= 1
-            self.root.after(1000, self._contar_memorizacao)
+                text=f"🧠 Memorize! Escondendo em {self.segundos_memo}…", bg=YELLOW)
+            self.segundos_memo -= 1
+            self.root.after(1000, self._contar_memo)
         else:
             self.mascote_label.config(text="🎮 Valendo! Encontre os pares! 💪", bg=PEACH)
-            self.start_real_game()
+            self._iniciar_jogo_real()
 
-    def start_real_game(self):
-        """Esconde as cartas e liga o cronômetro."""
-        for btn in self.buttons:
-            btn.config(text="", state="normal")
+    def _iniciar_jogo_real(self):
+        for i, btn in enumerate(self.btns):
+            if not self.cartas[i].combinada:
+                btn.config(text="", state="normal")
         self.start_time = time.time()
         self.update_timer()
 
+    # ── cronômetro ───────────────────────────────────────────────
     def update_timer(self):
-        """🕐 Atualiza o cronômetro a cada 1 segundo (MM:SS)."""
         if not self.timer.winfo_exists():
             return
-        if self.start_time and len(self.matched) < self.pairs * 2:
-            elapsed = self.tempo_acumulado + int(time.time() - self.start_time)
-            minutes = elapsed // 60
-            seconds = elapsed % 60
-            self.timer.config(text=f"⏱️ {minutes:02d}:{seconds:02d}")
+        combinados = sum(1 for c in self.cartas if c.combinada)
+        if self.start_time and combinados < self.pairs * 2:
+            elapsed  = self.tempo_acumulado + int(time.time() - self.start_time)
+            self.timer.config(text=f"⏱️ {elapsed//60:02d}:{elapsed%60:02d}")
             self.root.after(1000, self.update_timer)
 
-    def flip(self, i):
-        """🃏 Vira a carta de número i quando você clica."""
-        if i in self.matched:
-            return
-        if self.first is not None and self.second is not None:
-            return
-        self.buttons[i].config(text=self.values[i])
-        if self.first is None:
-            self.first = i
-            return
-        if self.first == i:
-            return
-        self.second = i
-        self.root.after(700, self.check_match)
+    # ── [+] animação de virar carta ──────────────────────────────
+    def _animar_carta(self, idx: int, valor: str, passos=3):
+        """Flash rápido na cor do botão antes de revelar o emoji."""
+        cores_flash = ["#FFFFFF", "#FFE0F0", "#FFB6C1"]
+        btn = self.btns[idx]
 
-    def check_match(self):
-        """🔍 Confere se as duas cartas viradas são iguais."""
-        a = self.first
-        b = self.second
+        def passo(n):
+            if n < len(cores_flash):
+                btn.config(bg=cores_flash[n])
+                self.root.after(50, lambda: passo(n + 1))
+            else:
+                btn.config(text=valor)
 
-        if self.values[a] == self.values[b]:
-            self.matched.add(a)
-            self.matched.add(b)
-            self.buttons[a].config(state="disabled", bg="#FDE2E4")
-            self.buttons[b].config(state="disabled", bg="#FDE2E4")
-            self.mascote_label.config(
-                text=f"🦋 Cirilla: {random.choice(FALAS_ACERTO)}", bg=MINT
-            )
-            self._ganhar_xp(10)
+        passo(0)
+
+    # ── virar carta ──────────────────────────────────────────────
+    def flip(self, i: int):
+        carta = self.cartas[i]
+        if carta.combinada or carta.virada:
+            return
+        if self.primeira and self.segunda:
+            return
+
+        carta.virar()
+        self._animar_carta(i, carta.valor)
+
+        if self.primeira is None:
+            self.primeira = carta
         else:
-            self.buttons[a].config(text="")
-            self.buttons[b].config(text="")
+            self.segunda = carta
+            # desabilita cliques enquanto confere
+            for btn in self.btns:
+                btn.config(state="disabled")
+            self.root.after(700, self.check_match)
+
+    # ── conferir par ─────────────────────────────────────────────
+    def check_match(self):
+        a, b = self.primeira, self.segunda
+
+        if a.valor == b.valor:
+            a.marcar_combinada()
+            b.marcar_combinada()
+            self.btns[a.indice].config(state="disabled", bg="#FDE2E4")
+            self.btns[b.indice].config(state="disabled", bg="#FDE2E4")
+
+            # [8] streak
+            self.streak += 1
+            self.streak_lbl.config(text=f"🔥 Streak: {self.streak}")
+
+            if self.streak > 0 and self.streak % STREAK_TRIGGER == 0:
+                # bônus de streak!
+                self.mascote_label.config(
+                    text=f"🦋 Cirilla: {random.choice(FALAS_STREAK)}", bg=YELLOW)
+                self._ganhar_xp(XP_STREAK)
+                Som.streak()
+                self._desbloquear("Streak Master 🔥🔥🔥")
+            else:
+                self.mascote_label.config(
+                    text=f"🦋 Cirilla: {random.choice(FALAS_ACERTO)}", bg=MINT)
+                Som.acerto()
+
+            self._ganhar_xp(XP_ACERTO)
+            self._atualizar_barra_xp()
+
+        else:
+            self.btns[a.indice].config(text="", bg=self._cor_botao(a.indice))
+            self.btns[b.indice].config(text="", bg=self._cor_botao(b.indice))
+            a.esconder()
+            b.esconder()
             self.mascote_label.config(
-                text=f"🦋 Cirilla: {random.choice(FALAS_ERRO)}", bg=PEACH
-            )
+                text=f"🦋 Cirilla: {random.choice(FALAS_ERRO)}", bg=PEACH)
+            Som.erro()
+            self.streak = 0
+            self.streak_lbl.config(text=f"🔥 Streak: {self.streak}")
 
-        self.first = None
-        self.second = None
+        self.primeira = None
+        self.segunda  = None
 
-        found = len(self.matched) // 2
-        self.progress.config(text=f"🎁 Pares: {found}/{self.pairs}")
+        # reabilita cartas não combinadas
+        for carta in self.cartas:
+            if not carta.combinada:
+                self.btns[carta.indice].config(state="normal")
 
-        if found == self.pairs:
-            self.victory()
+        combinados = sum(1 for c in self.cartas if c.combinada)
+        self.progress_lbl.config(text=f"🎁 Pares: {combinados//2}/{self.pairs}")
 
-    def victory(self):
-        """🎉 Final feliz (stats, XP, conquistas, ranking)."""
-        elapsed = self.tempo_acumulado + int(time.time() - self.start_time)
+        if combinados == self.pairs * 2:
+            self.vitoria()
+
+    def _cor_botao(self, i: int) -> str:
+        cores = [PINK, BLUE, MINT, PEACH, YELLOW, LILAC, PURPLE, CORAL]
+        return cores[i % len(cores)]
+
+    def _atualizar_barra_xp(self):
+        """Redesenha a barra de XP inline durante a partida."""
+        if not hasattr(self, "xp_canvas") or not self.xp_canvas.winfo_exists():
+            return
+        xp_atual = self.jogadora.xp_no_nivel_atual()
+        xp_max   = self.jogadora.xp_para_proximo()
+        pct      = xp_atual / xp_max
+        self.xp_canvas.delete("all")
+        self.xp_canvas.create_rectangle(0, 0, int(500 * pct), 16, fill=LILAC, outline="")
+        self.xp_canvas.create_text(
+            250, 8,
+            text=f"XP Nível {self.jogadora.level}: {xp_atual}/{xp_max}",
+            font=("Arial", 9, "bold"), fill=DARK_TEXT
+        )
+
+    # ── vitória ──────────────────────────────────────────────────
+    def vitoria(self):
+        elapsed     = self.tempo_acumulado + int(time.time() - self.start_time)
         self.start_time = None
 
-        self.jogadora.stats["games_won"] += 1
+        self.jogadora.stats["games_won"]  += 1
         self.jogadora.stats["total_time"] += elapsed
         if (self.jogadora.stats["best_time"] is None
                 or elapsed < self.jogadora.stats["best_time"]):
             self.jogadora.stats["best_time"] = elapsed
+
+        # histórico
+        self.jogadora.registrar_partida(elapsed, self.diff.get(), vitoria=True)
         self.gerenciador.salvar_jogadora(self.jogadora)
 
-        self._ganhar_xp(50)
+        self._ganhar_xp(XP_VITORIA)
         self._desbloquear("Primeira Vitória 🏆")
         if elapsed <= 60:
             self._desbloquear("Velocista ⚡")
-        if self.diff.get() == "Difícil":
+        if self._dificuldade_atual() == Dificuldade.DIFICIL:
             self._desbloquear("Mestre da Memória 🧙‍♀️")
         if self.jogadora.stats["games_won"] == 10:
             self._desbloquear("10 Vitórias 🎉")
+        if self.jogadora.level >= 10:
+            self._desbloquear("Nivel 10 👑")
 
-        self._apagar_jogo_salvo()
+        FileManager.apagar(SAVE_GAME_FILE)
         self.ranking.adicionar(
-            self.jogadora.nome, self.jogadora.xp, elapsed, self.jogadora.level
+            self.jogadora.nome, self.jogadora.xp, elapsed, self.jogadora.level)
+
+        Som.vitoria()
+        messagebox.showinfo(
+            "🎉 VITÓRIA!",
+            f"PARABÉNS! 🎉\n\n"
+            f"👤 {self.jogadora.nome}\n"
+            f"👑 {self.jogadora.titulo()}\n"
+            f"⏱️ Tempo: {elapsed}s\n"
+            f"⭐ Nível: {self.jogadora.level}\n"
+            f"💜 XP Total: {self.jogadora.xp}\n\n"
+            f"Você é incrível! ✨"
         )
-
-        victory_text = f"""
-🎉 PARABÉNS! 🎉
-
-👤 {self.jogadora.nome}
-👑 {self.jogadora.titulo()}
-⏱️ Tempo: {elapsed}s
-⭐ Nível Geral: {self.jogadora.level}
-💜 XP Total: {self.jogadora.xp}
-
-Que incrível! Você é incrível! 👑✨
-        """
-        messagebox.showinfo("VITÓRIA!", victory_text)
         self.home()
 
 
-# =====================================================
-# 🚀 LIGAR O JOGO
-# =====================================================
+# ╔══════════════════════════════════════════════════════════════╗
+# ║          INICIAR                                             ║
+# ╚══════════════════════════════════════════════════════════════╝
 if __name__ == "__main__":
     root = tk.Tk()
     jogo = KawaiiMemoryGame(root)
-    root.mainloop()   # ← só UMA vez! (na v7 tinha aparecido duplicad
+    root.mainloop()

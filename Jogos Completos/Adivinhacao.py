@@ -1,4 +1,4 @@
-import random
+import randomX
 
 numero_secreto = random.randint(1, 20)
 

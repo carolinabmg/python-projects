@@ -1,0 +1,45 @@
+{
+  "Carolina Bueno": {
+    "xp": 620,
+    "level": 7,
+    "moedas": 70,
+    "achievements": [
+      "Streak Master 🔥🔥🔥",
+      "Primeira Vitória 🏆",
+      "Velocista ⚡"
+    ],
+    "itens_loja": [],
+    "historico": [
+      {
+        "data": "20/06/2026 16:18",
+        "tempo": 61,
+        "dificuldade": "Médio",
+        "vitoria": true
+      },
+      {
+        "data": "20/06/2026 16:17",
+        "tempo": 27,
+        "dificuldade": "Fácil",
+        "vitoria": true
+      },
+      {
+        "data": "20/06/2026 16:13",
+        "tempo": 77,
+        "dificuldade": "Fácil",
+        "vitoria": true
+      },
+      {
+        "data": "20/06/2026 16:11",
+        "tempo": 41,
+        "dificuldade": "Fácil",
+        "vitoria": true
+      }
+    ],
+    "stats": {
+      "games_played": 4,
+      "games_won": 4,
+      "total_time": 206,
+      "best_time": 27
+    }
+  }
+}
