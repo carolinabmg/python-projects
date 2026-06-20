@@ -1,0 +1,15 @@
+{
+  "matheo": {
+    "xp": 260,
+    "level": 3,
+    "achievements": [
+      "Primeira Vitória 🏆"
+    ],
+    "stats": {
+      "games_played": 2,
+      "games_won": 2,
+      "total_time": 142,
+      "best_time": 65
+    }
+  }
+}
