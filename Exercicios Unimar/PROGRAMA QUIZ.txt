@@ -1,0 +1,168 @@
+algoritmo "Quiz_Algoritmo_Logica"
+
+var
+   pontuacao: inteiro
+   resposta: caractere
+
+inicio
+   pontuacao <- 0
+
+   escreval("==============================================")
+   escreval(" QUIZ - ALGORITMO E LOGICA DE PROGRAMACAO")
+   escreval("==============================================")
+   escreval("Regras:")
+   escreval("10 pontos se acertar na primeira tentativa")
+   escreval("5 pontos se acertar na segunda tentativa")
+   escreval("0 pontos se errar as duas tentativas")
+   escreval("==============================================")
+   escreval("")
+
+   escreval("1) Qual comando e usado para exibir uma mensagem na tela em Portugol?")
+   escreval("A) leia")
+   escreval("B) escreval")
+   escreval("C) se")
+   escreval("D) enquanto")
+   escreva("Digite a alternativa correta: ")
+   leia(resposta)
+
+   se (resposta = "B") ou (resposta = "b") entao
+      escreval("Resposta correta! Voce ganhou 10 pontos.")
+      pontuacao <- pontuacao + 10
+   senao
+      escreval("Resposta incorreta. Voce tem mais uma tentativa.")
+      escreva("Digite novamente a alternativa correta: ")
+      leia(resposta)
+
+      se (resposta = "B") ou (resposta = "b") entao
+         escreval("Resposta correta na segunda tentativa! Voce ganhou 5 pontos.")
+         pontuacao <- pontuacao + 5
+      senao
+         escreval("Resposta incorreta. Voce ganhou 0 pontos nesta pergunta.")
+      fimse
+   fimse
+
+   escreval("")
+
+   escreval("2) Qual comando e usado para receber dados digitados pelo usuario?")
+   escreval("A) escreva")
+   escreval("B) leia")
+   escreval("C) fimse")
+   escreval("D) algoritmo")
+   escreva("Digite a alternativa correta: ")
+   leia(resposta)
+
+   se (resposta = "B") ou (resposta = "b") entao
+      escreval("Resposta correta! Voce ganhou 10 pontos.")
+      pontuacao <- pontuacao + 10
+   senao
+      escreval("Resposta incorreta. Voce tem mais uma tentativa.")
+      escreva("Digite novamente a alternativa correta: ")
+      leia(resposta)
+
+      se (resposta = "B") ou (resposta = "b") entao
+         escreval("Resposta correta na segunda tentativa! Voce ganhou 5 pontos.")
+         pontuacao <- pontuacao + 5
+      senao
+         escreval("Resposta incorreta. Voce ganhou 0 pontos nesta pergunta.")
+      fimse
+   fimse
+
+   escreval("")
+
+   escreval("3) Qual estrutura e usada para tomar decisoes em um algoritmo?")
+   escreval("A) se")
+   escreval("B) enquanto")
+   escreval("C) para")
+   escreval("D) escreval")
+   escreva("Digite a alternativa correta: ")
+   leia(resposta)
+
+   se (resposta = "A") ou (resposta = "a") entao
+      escreval("Resposta correta! Voce ganhou 10 pontos.")
+      pontuacao <- pontuacao + 10
+   senao
+      escreval("Resposta incorreta. Voce tem mais uma tentativa.")
+      escreva("Digite novamente a alternativa correta: ")
+      leia(resposta)
+
+      se (resposta = "A") ou (resposta = "a") entao
+         escreval("Resposta correta na segunda tentativa! Voce ganhou 5 pontos.")
+         pontuacao <- pontuacao + 5
+      senao
+         escreval("Resposta incorreta. Voce ganhou 0 pontos nesta pergunta.")
+      fimse
+   fimse
+
+   escreval("")
+
+   escreval("4) Qual operador e usado para verificar igualdade no Portugol?")
+   escreval("A) <-")
+   escreval("B) =")
+   escreval("C) >")
+   escreval("D) <>")
+   escreva("Digite a alternativa correta: ")
+   leia(resposta)
+
+   se (resposta = "B") ou (resposta = "b") entao
+      escreval("Resposta correta! Voce ganhou 10 pontos.")
+      pontuacao <- pontuacao + 10
+   senao
+      escreval("Resposta incorreta. Voce tem mais uma tentativa.")
+      escreva("Digite novamente a alternativa correta: ")
+      leia(resposta)
+
+      se (resposta = "B") ou (resposta = "b") entao
+         escreval("Resposta correta na segunda tentativa! Voce ganhou 5 pontos.")
+         pontuacao <- pontuacao + 5
+      senao
+         escreval("Resposta incorreta. Voce ganhou 0 pontos nesta pergunta.")
+      fimse
+   fimse
+
+   escreval("")
+
+   escreval("5) Qual estrutura pode ser usada para repetir comandos varias vezes?")
+   escreval("A) fimse")
+   escreval("B) senao")
+   escreval("C) enquanto")
+   escreval("D) leia")
+   escreva("Digite a alternativa correta: ")
+   leia(resposta)
+
+   se (resposta = "C") ou (resposta = "c") entao
+      escreval("Resposta correta! Voce ganhou 10 pontos.")
+      pontuacao <- pontuacao + 10
+   senao
+      escreval("Resposta incorreta. Voce tem mais uma tentativa.")
+      escreva("Digite novamente a alternativa correta: ")
+      leia(resposta)
+
+      se (resposta = "C") ou (resposta = "c") entao
+         escreval("Resposta correta na segunda tentativa! Voce ganhou 5 pontos.")
+         pontuacao <- pontuacao + 5
+      senao
+         escreval("Resposta incorreta. Voce ganhou 0 pontos nesta pergunta.")
+      fimse
+   fimse
+
+   escreval("")
+   escreval("==============================================")
+   escreval("PONTUACAO FINAL: ", pontuacao, " pontos")
+
+   se (pontuacao = 50) entao
+      escreval("Mensagem: EXCELENTE")
+   senao
+      se (pontuacao >= 37) e (pontuacao <= 49) entao
+         escreval("Mensagem: OTIMO")
+      senao
+         se (pontuacao >= 25) e (pontuacao <= 36) entao
+            escreval("Mensagem: BOM")
+         senao
+            escreval("Mensagem: RUIM")
+         fimse
+      fimse
+   fimse
+
+   escreval("==============================================")
+
+fimalgoritmo
