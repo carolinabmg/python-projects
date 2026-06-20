@@ -2,7 +2,6 @@ import random
 
 opcoes = ["pedra", "papel", "tesoura"]
 
-<<<<<<< HEAD
 # 🏆 Placar — caixinhas que começam zeradas
 vitorias = 0
 derrotas = 0
@@ -43,7 +42,6 @@ while jogando:
             print("❌ Digite apenas s ou n.")
 
 print(f"👋 Obrigado por jogar! Placar final → 🏆 {vitorias}  💀 {derrotas}  🤝 {empates}")
-=======
 computador = random.choice(opcoes) #random.choice() é uma função da biblioteca random que seleciona aleatoriamente um elemento de uma sequência (como uma lista). Neste caso, ela escolhe aleatoriamente entre "pedra", "papel" e "tesoura" para o computador.
 
 jogador = input("Escolha pedra, papel ou tesoura: ").lower() #.lower() para garantir que a entrada do usuário seja tratada como minúscula, independentemente de como ele digite.
@@ -84,4 +82,3 @@ while True:
 
     else:
         print("❌ Digite apenas s ou n.")
->>>>>>> fb7e2eb92ffd2b078f83777eef56b588a3d26e29
