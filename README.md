@@ -143,6 +143,42 @@ A game where the player attempts to guess a randomly generated number.
 
 ---
 
+## 🎀 Kawaii Memory Game (RPG)
+
+A polished memory card game with a kawaii/fantasy theme, where players match pairs of cards while progressing through a magical ranking system. The most complete project in this repository, built fully with Object-Oriented Programming.
+
+### ✨ Features
+
+- 🎴 Classic memory card matching gameplay
+- 👥 Multiple separate player profiles (create, switch, delete)
+- 📊 Profile comparison screen
+- 👑 XP and leveling system with magical titles (Apprentice → Code Mage → Archmage)
+- 🏆 Achievements and Top 10 ranking
+- 💾 Save and continue an in-progress match
+- 🎚️ Difficulty levels (Easy / Medium / Hard)
+- 🦋 In-game mascot with reactive feedback
+- 🌸 Kawaii pastel interface
+
+### 🧱 Object-Oriented Design
+
+- `Jogadora` — holds each player's progress (xp, level, achievements, stats)
+- `GerenciadorDePerfis` — manages all profiles (create, load, save, delete)
+- `Ranking` — handles the top 10 leaderboard
+- `KawaiiMemoryGame` — controls the screens, buttons and gameplay
+- Uses **composition** (the game contains the other objects)
+
+### 🛠️ Technologies Used
+
+- Python
+- Tkinter (graphical interface)
+- JSON (data persistence)
+- Object-Oriented Programming (classes, composition, methods)
+- Random and Time modules
+
+**Status:** ✅ Completed
+
+---
+
 # 🛠️ Technologies Used in This Repository
 
 * 🐍 Python
