@@ -1,51 +1,98 @@
-# 🚀 Carolina's Python Portfolio
+# 🚀 Python Projects Portfolio
 
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&pause=1000&color=FF69B4&center=true&vCenter=true&width=700&lines=Python+Developer+in+Training;Building+Projects+One+Quest+at+a+Time;ADS+Student+%7C+Future+Software+Developer" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=25&pause=1000&color=FF69B4&center=true&vCenter=true&width=700&lines=Carolina+Bueno+Mendonça+Gonçalves;ADS+Student+%7C+Future+Python+Developer;Building+Projects+One+Quest+at+a+Time+🐍✨" />
 </p>
+
+---
 
 ## 🌸 About Me
 
-Hello! I'm **Carolina Bueno Mendonça Gonçalves**, an ADS student passionate about:
+Hello! I'm **Carolina Bueno Mendonça Gonçalves**, an ADS student passionate about technology, programming, and creating projects that transform learning into practice.
 
+💖 Areas of Interest:
 - 🐍 Python Development
 - 🎮 Game Development
+- 🗄️ Databases (SQL)
 - 🌐 Front-End Development
-- 🗄️ Databases and SQL
 - 🤖 Artificial Intelligence
 - 🎨 UI/UX Design
 
 ---
 
-## 🏆 Completed Projects
+# 🏆 Completed Projects
 
-| Project | Description | Technologies | Status |
-|---------|-------------|--------------|---------|
-| 🎮 RPG Game | Turn-based RPG in Python | Python, OOP | ✅ Completed |
-| ✊🖐️✌️ Rock Paper Scissors | Interactive game | Python | ✅ Completed |
-| 🔢 Guessing Game | Number guessing challenge | Python | ✅ Completed |
-| 🧮 Calculator | Basic calculator with functions | Python | ✅ Completed |
-| 📚 Student System | Student registration system | Python, Lists, Dictionaries | ✅ Completed |
+## ⏱️ Pomodoro Timer
+A productivity application based on the Pomodoro Technique.
+
+### ✨ Features
+- Start and stop timer
+- Work and break sessions
+- Improves focus and study organization
+- Beginner-friendly Python project
+
+**Technologies:** Python
+
+**Status:** ✅ Completed
 
 ---
 
-## 🛠️ Technologies
+## 🎲 Guessing Game
+A game where the player tries to guess a randomly generated number.
+
+### ✨ Features
+- Random number generation
+- Difficulty and retry logic
+- Feedback for high and low guesses
+- Score and game loop concepts
+
+**Technologies:** Python
+
+**Status:** ✅ Completed
+
+---
+
+## 🧠 Memory Game Deluxe
+An interactive memory game developed in Python.
+
+### ✨ Features
+- Matching card mechanics
+- Game logic and loops
+- Enhanced gameplay features
+- Practice with functions and conditions
+
+**Technologies:** Python
+
+**Status:** ✅ Completed
+
+---
+
+# 🛠️ Technologies Used
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![SQL](https://img.shields.io/badge/SQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-![HTML](https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS](https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 
 ---
 
-## 🎯 Current Goals
+# 🎯 Learning Journey
 
-- Build more Python projects
-- Improve my OOP skills
-- Learn APIs and databases
-- Create complete portfolio applications
-- Get my first internship in technology
+- ✅ Variables and Data Types
+- ✅ Conditionals
+- ✅ Loops
+- ✅ Functions
+- ✅ Lists and Dictionaries
+- ✅ Game Logic
+- ✅ Problem Solving
+- 🔄 Object-Oriented Programming
+- 🔄 APIs and Databases
 
 ---
 
-⭐ Thank you for visiting my portfolio!
+## 📚 Repository Goal
+
+This repository contains **100% completed Python projects**, created during my journey as an ADS student and future software developer. Each project represents a new challenge conquered and a new spell learned in my programming grimoire. 🧙‍♀️🐍✨
+
+---
+
+⭐ If you like this repository, don't forget to leave a star!
