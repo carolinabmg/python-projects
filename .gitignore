@@ -1,0 +1,30 @@
+# ===============================================
+# .gitignore — Python Projects Portfolio 🌸
+# (o que o Git deve IGNORAR, ou seja, não enviar pro GitHub)
+# ===============================================
+
+# --- Dados gerados pelos jogos (mudam toda vez que alguém joga) ---
+# Não são código: são "saves". Por isso ficam fora do repositório.
+perfis_kawaii.json
+ranking_kawaii.json
+progress_kawaii.json
+jogo_salvo_kawaii.json
+
+# --- Cache do Python (criado automaticamente quando o código roda) ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Ambientes virtuais (venv) ---
+venv/
+.venv/
+env/
+.env
+
+# --- Configurações de editores/IDE ---
+.vscode/
+.idea/
+
+# --- Arquivos de sistema operacional ---
+.DS_Store
+Thumbs.db
