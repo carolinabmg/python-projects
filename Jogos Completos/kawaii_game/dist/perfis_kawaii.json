@@ -1,6 +1,6 @@
 {
   "Carolina Bueno": {
-    "xp": 620,
+    "xp": 630,
     "level": 7,
     "moedas": 70,
     "achievements": [
@@ -36,7 +36,7 @@
       }
     ],
     "stats": {
-      "games_played": 4,
+      "games_played": 5,
       "games_won": 4,
       "total_time": 206,
       "best_time": 27
