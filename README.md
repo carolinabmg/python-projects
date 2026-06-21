@@ -1,134 +1,243 @@
-# 🌸 Projetos Python — Feiticeira do Código
+# 🐍✨ Python Projects Portfolio
 
-> *"Cada linha de código é um feitiço. Cada projeto, uma nova missão. ✨"*
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&pause=1000&color=FF69B4&center=true&vCenter=true&width=800&lines=Carolina+Bueno+Mendonça+Gonçalves;ADS+Student+%7C+Future+Software+Developer;Building+Projects+One+Quest+at+a+Time+🐍✨" />
+</p>
 
-Repositório com os projetos desenvolvidos durante minha jornada no curso de **Análise e Desenvolvimento de Sistemas (ADS)**.  
-Todos feitos em Python, com interface gráfica (`tkinter`) e um toque especial de magia kawaii. 🎀
-
----
-
-## 📁 Projetos
-
-### 🎯 Adivinhacao.py
-> Jogo de adivinhação de números com interface gráfica.
-
-O clássico jogo de "adivinhe o número" com feedback visual, tentativas limitadas e sistema de pontuação.
-
-**Tecnologias:** Python · tkinter  
-**Conceitos:** lógica condicional, loops, entrada do usuário, aleatoriedade (`random`)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/>
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Status-Active-ff69b4?style=for-the-badge"/>
+</p>
 
 ---
 
-### 📅 Agenda Fofa.py
-> Agenda pessoal com interface kawaii para organizar compromissos e tarefas.
+# 🌸 About Me
 
-Permite cadastrar, visualizar e gerenciar eventos do dia a dia com visual amigável e organizado.
+Hello! I'm **Carolina Bueno Mendonça Gonçalves**, an **Analysis and Systems Development (ADS)** student passionate about technology, programming, and continuous learning.
 
-**Tecnologias:** Python · tkinter · json  
-**Conceitos:** CRUD, persistência de dados em arquivo, manipulação de datas (`datetime`)
+💖 Areas of Interest:
 
----
+* 🐍 Python Development
+* 🎮 Game Development
+* 🌐 Front-End Development
+* 🗄️ Databases (SQL)
+* 🤖 Artificial Intelligence
+* 🎨 UI/UX Design
 
-### 🎀 MEMORY GAME DELUXE.py
-> Jogo da memória com sistema RPG completo — v10.0
-
-O projeto mais completo do portfólio. Jogo da memória com progressão de personagem, loja, múltiplos temas visuais e sistema de perfis.
-
-**Funcionalidades:**
-- 👥 Perfis múltiplos de jogadoras
-- ⭐ XP, níveis e títulos (Aprendiz até Deusa da Memória)
-- 🪙 Sistema de moedas e loja com avatares e cosméticos
-- 🎨 4 temas visuais: Kawaii, Dark, Harry Potter e RGB
-- 🔥 4 dificuldades: Fácil (4×4) até Mestre (8×8)
-- 🏆 Ranking separado por dificuldade
-- 💾 Salvamento automático
-- 🎯 14 conquistas desbloqueáveis
-
-**Tecnologias:** Python · tkinter · json · pygame *(opcional)*  
-**Conceitos:** POO (classes, herança, encapsulamento), Enum, persistência JSON, eventos GUI, arquitetura em camadas
+My goal is to become a software developer and build projects that combine creativity, logic, and problem-solving.
 
 ---
 
-### ✂️ PedraPapelTesoura.py
-> O clássico Pedra, Papel e Tesoura com placar e interface gráfica.
+# 🏆 Completed Projects
 
-Jogue contra o computador com placar persistente, animações visuais e feedback da mascote.
-
-**Tecnologias:** Python · tkinter  
-**Conceitos:** estruturas condicionais, `random`, eventos de botão, controle de estado
+This repository contains **100% completed projects**, developed during my learning journey in Python.
 
 ---
 
-### 🌸 Pomodoro.py
-> Timer Pomodoro com interface kawaii e estatísticas do dia.
+# 📅 Digital Agenda
 
-Gerenciador de foco baseado na técnica Pomodoro, com temporizador configurável, sistema de patentes e histórico de sessões salvo em arquivo.
+A productivity application designed to help organize tasks, reminders, and appointments.
 
-**Funcionalidades:**
-- ⏱️ Tempos de foco e pausa configuráveis (1–120 min)
-- 📊 Estatísticas diárias (pomodoros concluídos, minutos de foco)
-- 👑 Sistema de patentes (Aprendiz → Arquimaga Python)
-- 💾 Histórico salvo em `.txt`
+## ✨ Features
 
-**Tecnologias:** Python · tkinter  
-**Conceitos:** `root.after()` (loop de eventos GUI sem bloqueio), persistência em arquivo texto, validação de entrada
+* ➕ Add new tasks
+* ❌ Remove tasks
+* 📋 View saved appointments
+* 📝 Manage daily activities
+* 🗂️ Organize information efficiently
+* 🔄 Interactive menu system
+* 💻 Console-based user interface
+* 🧠 Practice with lists, loops, and functions
 
----
+### Technologies Used
 
-## 🛠️ Tecnologias utilizadas
+* Python
+* Lists
+* Functions
+* Conditionals
+* Loops
 
-| Tecnologia | Uso |
-|---|---|
-| **Python 3.10+** | Linguagem principal |
-| **tkinter** | Interface gráfica (stdlib) |
-| **json** | Persistência de dados |
-| **datetime** | Manipulação de datas e horas |
-| **random** | Aleatoriedade nos jogos |
-| **pygame** | Sons *(opcional, Memory Game)* |
+**Status:** ✅ Completed
 
 ---
 
-## 🚀 Como rodar qualquer projeto
+# ⏱️ Pomodoro Timer
 
-### Pré-requisito
-- Python 3.10 ou superior instalado
+A productivity application based on the famous **Pomodoro Technique**, helping users stay focused while studying or working.
 
-```bash
-# Verificar versão
-python --version
+## ✨ Features
+
+* ▶️ Start timer
+* ⏸️ Pause sessions
+* 🔁 Work and break cycles
+* ⏰ Countdown system
+* 📚 Productivity support
+* 🧠 Time management practice
+* 💻 Console interface
+
+### Technologies Used
+
+* Python
+* Time module
+* Loops
+* Functions
+* Conditionals
+
+**Status:** ✅ Completed
+
+---
+
+# ✊🖐️✌️ Rock Paper Scissors
+
+A classic game where the player competes against the computer.
+
+## ✨ Features
+
+* 🎮 Player vs Computer mode
+* 🎲 Random computer choices
+* 🏆 Win, lose, and draw conditions
+* 🔄 Replay functionality
+* 📊 Score logic
+* 🧠 Decision-making practice
+* 💻 Interactive console interface
+
+### Technologies Used
+
+* Python
+* Random module
+* Conditionals
+* Loops
+* Functions
+
+**Status:** ✅ Completed
+
+---
+
+# 🎲 Guessing Game
+
+A game where the player attempts to guess a randomly generated number.
+
+## ✨ Features
+
+* 🔢 Random number generation
+* ⬆️ High/Low hints
+* 🔄 Retry system
+* 🏆 Victory conditions
+* 📊 Attempt counter
+* 🎯 Difficulty adjustment
+* 🧠 Logic and problem-solving practice
+* 💻 Interactive console interface
+
+### Technologies Used
+
+* Python
+* Random module
+* Loops
+* Conditionals
+* Variables
+* Functions
+
+**Status:** ✅ Completed
+
+---
+
+## 🎀 Kawaii Memory Game (RPG)
+
+A polished memory card game with a kawaii/fantasy theme, where players match pairs of cards while progressing through a magical ranking system. The most complete project in this repository, built fully with Object-Oriented Programming.
+
+### ✨ Features
+
+- 🎴 Classic memory card matching gameplay
+- 👥 Multiple separate player profiles (create, switch, delete)
+- 📊 Profile comparison screen
+- 👑 XP and leveling system with magical titles (Apprentice → Code Mage → Archmage)
+- 🏆 Achievements and Top 10 ranking
+- 💾 Save and continue an in-progress match
+- 🎚️ Difficulty levels (Easy / Medium / Hard)
+- 🦋 In-game mascot with reactive feedback
+- 🌸 Kawaii pastel interface
+
+### 🧱 Object-Oriented Design
+
+- `Jogadora` — holds each player's progress (xp, level, achievements, stats)
+- `GerenciadorDePerfis` — manages all profiles (create, load, save, delete)
+- `Ranking` — handles the top 10 leaderboard
+- `KawaiiMemoryGame` — controls the screens, buttons and gameplay
+- Uses **composition** (the game contains the other objects)
+
+### 🛠️ Technologies Used
+
+- Python
+- Tkinter (graphical interface)
+- JSON (data persistence)
+- Object-Oriented Programming (classes, composition, methods)
+- Random and Time modules
+
+**Status:** ✅ Completed
+
+---
+
+# 🛠️ Technologies Used in This Repository
+
+* 🐍 Python
+* 🔄 Git
+* ☁️ GitHub
+* 📋 Lists
+* 🧩 Functions
+* 🔀 Conditionals
+* 🔁 Loops
+* 🎲 Random Module
+* ⏰ Time Module
+* 🏗️ Problem Solving
+
+---
+
+# 📂 Repository Structure
+
+```text
+python-projects/
+│
+├── 📅 digital-agenda/
+├── ⏱️ pomodoro-timer/
+├── ✊🖐️✌️ rock-paper-scissors/
+├── 🎲 guessing-game/
+└── README.md
 ```
 
-### Executar
-```bash
-python nome_do_arquivo.py
-```
+---
 
-### Se aparecer erro de tkinter no Linux:
-```bash
-sudo apt install python3-tk
-```
+# 🌱 Learning Journey
 
-### Para sons no Memory Game (opcional):
-```bash
-pip install pygame numpy
-```
+✅ Variables and Data Types
+✅ Input and Output
+✅ Conditionals
+✅ Loops
+✅ Functions
+✅ Lists
+✅ Problem Solving
+✅ Game Logic
+✅ Console Applications
+🔄 Object-Oriented Programming (In Progress)
+🔄 APIs and Databases (In Progress)
 
 ---
 
-## 👩‍💻 Sobre a autora
+# 🎯 Goals
 
-**Carolina Bueno Mendonça Gonçalves**  
-Estudante de Análise e Desenvolvimento de Sistemas · São Paulo, Brasil 🇧🇷
-
-Apaixonada por tecnologia, games e por transformar código em experiências fofinhas e funcionais. 🌸  
-Cada projeto aqui é uma missão completada na jornada para me tornar uma desenvolvedora. ⚔️✨
-
----
-
-## 📝 Licença
-
-Projetos de uso livre para fins educacionais e pessoais.
+* Build more complete Python applications
+* Learn Object-Oriented Programming (OOP)
+* Study APIs and Databases
+* Create larger projects and portfolios
+* Obtain my first internship in technology
 
 ---
 
-<p align="center">Feito com 🩷 pela feiticeira do código</p>
+# ⭐ Repository Purpose
+
+This repository represents my journey as an **ADS student and future software developer**. Every project here is a completed quest that helped me develop programming skills, logical thinking, and creativity.
+
+> "Every line of code is another spell learned in my Python Grimoire." 🧙‍♀️🐍✨
+
+If you enjoyed this repository, don't forget to leave a ⭐!
