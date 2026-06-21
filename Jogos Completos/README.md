@@ -1,161 +1,243 @@
-# 🎀 Memory Game Deluxe Kawaii RPG — v10.0
+# 🐍✨ Python Projects Portfolio
 
-> *"Que a magia da memória esteja com você, feiticeira! ✨"*
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&pause=1000&color=FF69B4&center=true&vCenter=true&width=800&lines=Carolina+Bueno+Mendonça+Gonçalves;ADS+Student+%7C+Future+Software+Developer;Building+Projects+One+Quest+at+a+Time+🐍✨" />
+</p>
 
-Um jogo da memória com progressão RPG, loja de cosméticos, múltiplos temas visuais e sistema de perfis — feito inteiramente em Python com `tkinter`.
-
----
-
-## 🖼️ Temas Visuais
-
-| Kawaii 🎀 | Dark 🌙 | Harry Potter ⚡ | RGB 🌈 |
-|-----------|---------|----------------|--------|
-| Rosa pastel | Azul escuro | Dourado e bordô | Neon colorido |
-
----
-
-## ✨ Funcionalidades
-
-- 👥 **Perfis múltiplos** — crie e alterne entre feiticeiras
-- ⭐ **XP, níveis e títulos** — de Aprendiz 🌱 até Deusa da Memória 💫
-- 🪙 **Sistema de moedas** — ganhe jogando, gaste na loja
-- 🛍️ **Loja** — avatares, cosméticos e temas visuais desbloqueáveis
-- 🎨 **4 temas visuais** — Kawaii, Dark, Harry Potter e RGB
-- 🦋 **Avatares equipáveis** — 8 opções para personalizar seu perfil
-- 🔥 **4 dificuldades** — Fácil (4×4), Médio (4×5), Difícil (6×6) e Mestre (8×8)
-- 🃏 **6 temas de cartas** — Kawaii, Natureza, Comida, Espaço, Harry Potter e Animais
-- 🏆 **Ranking por dificuldade** — top 10 separado para cada modo
-- 📊 **Estatísticas avançadas** — acurácia, média de tempo, melhor tempo
-- 💾 **Salvamento automático** — salva silenciosamente a cada par encontrado
-- 🔊 **Sons sintéticos** — via `pygame` (opcional, fallback silencioso)
-- 🎯 **14 conquistas** desbloqueáveis
-- 📜 **Histórico** das últimas 10 partidas por perfil
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/>
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Status-Active-ff69b4?style=for-the-badge"/>
+</p>
 
 ---
 
-## 🚀 Como rodar
+# 🌸 About Me
 
-### 1. Pré-requisitos
+Hello! I'm **Carolina Bueno Mendonça Gonçalves**, an **Analysis and Systems Development (ADS)** student passionate about technology, programming, and continuous learning.
 
-- Python **3.10 ou superior**
-- `tkinter` — já vem incluso na maioria das instalações Python
+💖 Areas of Interest:
 
-```bash
-# No Linux, se não tiver tkinter:
-sudo apt install python3-tk
-```
+* 🐍 Python Development
+* 🎮 Game Development
+* 🌐 Front-End Development
+* 🗄️ Databases (SQL)
+* 🤖 Artificial Intelligence
+* 🎨 UI/UX Design
 
-### 2. Dependências opcionais (sons)
-
-```bash
-pip install pygame numpy
-```
-
-> Sem elas o jogo funciona normalmente, apenas sem efeitos sonoros.
-
-### 3. Executar
-
-```bash
-python memory_kawaii_v10.py
-```
+My goal is to become a software developer and build projects that combine creativity, logic, and problem-solving.
 
 ---
 
-## 🗂️ Arquivos gerados automaticamente
+# 🏆 Completed Projects
 
-O jogo cria os seguintes arquivos na mesma pasta ao rodar:
-
-| Arquivo | Conteúdo |
-|---|---|
-| `perfis_v10.json` | Dados de todos os perfis (XP, moedas, conquistas…) |
-| `ranking_v10.json` | Top 10 por dificuldade |
-| `jogo_salvo_v10.json` | Partida em andamento (auto-save) |
-| `config_v10.json` | Tema visual e dificuldade preferidos |
+This repository contains **100% completed projects**, developed during my learning journey in Python.
 
 ---
 
-## 🎮 Como jogar
+# 📅 Digital Agenda
 
-1. **Crie um perfil** com seu nome de feiticeira
-2. **Escolha a dificuldade** e o tema das cartas
-3. Clique em **🎮 JOGAR**
-4. Memorize as cartas durante a contagem regressiva (5 segundos)
-5. Vire duas cartas por vez tentando encontrar os pares
-6. A cada **3 acertos seguidos** você ativa o **Streak Bonus 🔥**
-7. Ao vencer, ganhe **XP + moedas** e suba de nível!
+A productivity application designed to help organize tasks, reminders, and appointments.
 
----
+## ✨ Features
 
-## 🪙 Sistema de moedas
+* ➕ Add new tasks
+* ❌ Remove tasks
+* 📋 View saved appointments
+* 📝 Manage daily activities
+* 🗂️ Organize information efficiently
+* 🔄 Interactive menu system
+* 💻 Console-based user interface
+* 🧠 Practice with lists, loops, and functions
 
-| Ação | Moedas ganhas |
-|---|---|
-| Par acertado | 🪙 +2 |
-| Streak (a cada 3 acertos) | 🪙 +10 |
-| Vitória | 🪙 +30 |
-| Level Up | 🪙 +20 |
-| Boas-vindas (novo perfil) | 🪙 +50 |
+### Technologies Used
 
----
+* Python
+* Lists
+* Functions
+* Conditionals
+* Loops
 
-## 🏆 Conquistas
-
-| Conquista | Como desbloquear |
-|---|---|
-| Primeira Vitória 🏆 | Vencer qualquer partida |
-| Velocista ⚡ | Vencer em menos de 60 segundos |
-| Speedrun Master ⚡⚡⚡ | Vencer em menos de 30 segundos |
-| Streak Master 🔥🔥🔥 | Ativar um streak de 3 |
-| Campeã Fácil 🌸 | Vencer no modo Fácil |
-| Campeã Médio 💜 | Vencer no modo Médio |
-| Campeã Difícil 🔥 | Vencer no modo Difícil |
-| Campeã Mestre 🔥🔥 | Vencer no modo Mestre (8×8) |
-| Mestre da Memória 🧙‍♀️ | Vencer no Mestre |
-| 10 Vitórias 🎉 | Acumular 10 vitórias |
-| Nível 10 👑 | Chegar ao nível 10 |
-| Multimilionária 🪙 | Acumular 1000 moedas |
-| Colecionadora 🛍️ | Desbloquear 3 cosméticos |
+**Status:** ✅ Completed
 
 ---
 
-## 🧱 Estrutura do código
+# ⏱️ Pomodoro Timer
 
-```
-memory_kawaii_v10.py
+A productivity application based on the famous **Pomodoro Technique**, helping users stay focused while studying or working.
+
+## ✨ Features
+
+* ▶️ Start timer
+* ⏸️ Pause sessions
+* 🔁 Work and break cycles
+* ⏰ Countdown system
+* 📚 Productivity support
+* 🧠 Time management practice
+* 💻 Console interface
+
+### Technologies Used
+
+* Python
+* Time module
+* Loops
+* Functions
+* Conditionals
+
+**Status:** ✅ Completed
+
+---
+
+# ✊🖐️✌️ Rock Paper Scissors
+
+A classic game where the player competes against the computer.
+
+## ✨ Features
+
+* 🎮 Player vs Computer mode
+* 🎲 Random computer choices
+* 🏆 Win, lose, and draw conditions
+* 🔄 Replay functionality
+* 📊 Score logic
+* 🧠 Decision-making practice
+* 💻 Interactive console interface
+
+### Technologies Used
+
+* Python
+* Random module
+* Conditionals
+* Loops
+* Functions
+
+**Status:** ✅ Completed
+
+---
+
+# 🎲 Guessing Game
+
+A game where the player attempts to guess a randomly generated number.
+
+## ✨ Features
+
+* 🔢 Random number generation
+* ⬆️ High/Low hints
+* 🔄 Retry system
+* 🏆 Victory conditions
+* 📊 Attempt counter
+* 🎯 Difficulty adjustment
+* 🧠 Logic and problem-solving practice
+* 💻 Interactive console interface
+
+### Technologies Used
+
+* Python
+* Random module
+* Loops
+* Conditionals
+* Variables
+* Functions
+
+**Status:** ✅ Completed
+
+---
+
+## 🎀 Kawaii Memory Game (RPG)
+
+A polished memory card game with a kawaii/fantasy theme, where players match pairs of cards while progressing through a magical ranking system. The most complete project in this repository, built fully with Object-Oriented Programming.
+
+### ✨ Features
+
+- 🎴 Classic memory card matching gameplay
+- 👥 Multiple separate player profiles (create, switch, delete)
+- 📊 Profile comparison screen
+- 👑 XP and leveling system with magical titles (Apprentice → Code Mage → Archmage)
+- 🏆 Achievements and Top 10 ranking
+- 💾 Save and continue an in-progress match
+- 🎚️ Difficulty levels (Easy / Medium / Hard)
+- 🦋 In-game mascot with reactive feedback
+- 🌸 Kawaii pastel interface
+
+### 🧱 Object-Oriented Design
+
+- `Jogadora` — holds each player's progress (xp, level, achievements, stats)
+- `GerenciadorDePerfis` — manages all profiles (create, load, save, delete)
+- `Ranking` — handles the top 10 leaderboard
+- `KawaiiMemoryGame` — controls the screens, buttons and gameplay
+- Uses **composition** (the game contains the other objects)
+
+### 🛠️ Technologies Used
+
+- Python
+- Tkinter (graphical interface)
+- JSON (data persistence)
+- Object-Oriented Programming (classes, composition, methods)
+- Random and Time modules
+
+**Status:** ✅ Completed
+
+---
+
+# 🛠️ Technologies Used in This Repository
+
+* 🐍 Python
+* 🔄 Git
+* ☁️ GitHub
+* 📋 Lists
+* 🧩 Functions
+* 🔀 Conditionals
+* 🔁 Loops
+* 🎲 Random Module
+* ⏰ Time Module
+* 🏗️ Problem Solving
+
+---
+
+# 📂 Repository Structure
+
+```text
+python-projects/
 │
-├── TEMAS_VISUAIS        # paletas de cor para cada tema
-├── TEMAS_CARTAS         # emojis por categoria
-├── AVATARES / COSMETICOS_LOJA / TEMAS_LOJA
-│
-├── class FileManager    # todo acesso a disco centralizado
-├── class Carta          # representa uma carta do tabuleiro
-├── class Som            # sons sintéticos via pygame/numpy
-├── class Jogadora       # perfil, XP, moedas, conquistas, histórico
-├── class GerenciadorDePerfis
-├── class Ranking        # top 10 separado por dificuldade
-├── class Config         # configurações persistentes
-└── class KawaiiMemoryGame  # lógica principal + toda a UI tkinter
+├── 📅 digital-agenda/
+├── ⏱️ pomodoro-timer/
+├── ✊🖐️✌️ rock-paper-scissors/
+├── 🎲 guessing-game/
+└── README.md
 ```
 
 ---
 
-## 🛠️ Tecnologias
+# 🌱 Learning Journey
 
-- **Python 3.10+**
-- **tkinter** — interface gráfica (stdlib)
-- **json** — persistência de dados (stdlib)
-- **pygame** *(opcional)* — sons
-- **numpy** *(opcional)* — síntese de áudio
+✅ Variables and Data Types
+✅ Input and Output
+✅ Conditionals
+✅ Loops
+✅ Functions
+✅ Lists
+✅ Problem Solving
+✅ Game Logic
+✅ Console Applications
+🔄 Object-Oriented Programming (In Progress)
+🔄 APIs and Databases (In Progress)
 
 ---
 
-## 👩‍💻 Autora
+# 🎯 Goals
 
-Feito com 🩷 pela **feiticeira do código**
-Projeto desenvolvido durante o curso de **Análise e Desenvolvimento de Sistemas (ADS)**
+* Build more complete Python applications
+* Learn Object-Oriented Programming (OOP)
+* Study APIs and Databases
+* Create larger projects and portfolios
+* Obtain my first internship in technology
 
 ---
 
-## 📝 Licença
+# ⭐ Repository Purpose
 
-Este projeto é de uso livre para fins educacionais e pessoais.
+This repository represents my journey as an **ADS student and future software developer**. Every project here is a completed quest that helped me develop programming skills, logical thinking, and creativity.
+
+> "Every line of code is another spell learned in my Python Grimoire." 🧙‍♀️🐍✨
+
+If you enjoyed this repository, don't forget to leave a ⭐!
