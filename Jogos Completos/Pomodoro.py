@@ -17,23 +17,25 @@ import tkinter as tk
 from tkinter import font as tkfont
 
 # ──────────────────────────────────────────────────────────────
-# Configurações (mexa aqui se quiser tempos diferentes)
+# Configurações padrão
 # ──────────────────────────────────────────────────────────────
-FOCO_MIN = 25       # minutos de foco
-PAUSA_MIN = 5       # minutos de pausa
+FOCO_MIN_PADRAO = 25
+PAUSA_MIN_PADRAO = 5
 
 # Paleta rosa pastel 🌸
 CORES = {
-    "fundo":     "#FFF0F5",  # lavender blush (fundo geral)
-    "cartao":    "#FFE4EC",  # rosa um pouco mais saturado
-    "acento":    "#FF8FB1",  # rosa principal (botões, destaques)
-    "acento2":   "#FFC1CC",  # rosa claro (botão secundário)
-    "texto":     "#6D5D6E",  # cinza-roxeado suave
-    "texto_sec": "#A48BA6",  # texto secundário, mais clarinho
-    "pausa":     "#9ED5C5",  # verdinho pastel pro modo pausa
+    "fundo":     "#FFF0F5",
+    "cartao":    "#FFE4EC",
+    "acento":    "#FF8FB1",
+    "acento2":   "#FFC1CC",
+    "texto":     "#6D5D6E",
+    "texto_sec": "#A48BA6",
+    "pausa":     "#9ED5C5",
+    "erro":      "#FF6B6B",
+    "input_bd":  "#FFAAC5",
+    "input_foc": "#FF8FB1",
 }
 
-# Caminho do arquivo de histórico (fica na mesma pasta do script)
 PASTA = os.path.dirname(os.path.abspath(__file__))
 ARQUIVO_HISTORICO = os.path.join(PASTA, "historico_pomodoro.txt")
 
@@ -43,26 +45,31 @@ class PomodoroKawaii:
         self.root = root
         self.root.title("🌸 Pomodoro Kawaii 🌸")
         self.root.configure(bg=CORES["fundo"])
-        self.root.geometry("360x520")
+        self.root.geometry("360x620")
         self.root.resizable(False, False)
 
-        # Estado interno
-        self.modo = "foco"          # "foco" ou "pausa"
-        self.segundos = FOCO_MIN * 60
-        self.rodando = False
-        self.after_id = None        # id do agendamento do tkinter (pra cancelar)
+        # Valores configuráveis (em minutos)
+        self.foco_min = FOCO_MIN_PADRAO
+        self.pausa_min = PAUSA_MIN_PADRAO
 
-        # Estatísticas do dia
+        # Estado interno
+        self.modo = "foco"
+        self.segundos = self.foco_min * 60
+        self.rodando = False
+        self.after_id = None
+
+        # Estatísticas
         self.pomodoros_hoje = 0
         self.minutos_foco_hoje = 0
-        self._carregar_stats()      # lê o histórico e conta os de hoje
+        self._carregar_stats()
 
         # Fontes
-        self.f_titulo = tkfont.Font(family="Segoe UI", size=18, weight="bold")
-        self.f_timer = tkfont.Font(family="Consolas", size=52, weight="bold")
-        self.f_normal = tkfont.Font(family="Segoe UI", size=11)
+        self.f_titulo  = tkfont.Font(family="Segoe UI", size=18, weight="bold")
+        self.f_timer   = tkfont.Font(family="Consolas", size=52, weight="bold")
+        self.f_normal  = tkfont.Font(family="Segoe UI", size=11)
         self.f_pequena = tkfont.Font(family="Segoe UI", size=9)
-        self.f_botao = tkfont.Font(family="Segoe UI", size=12, weight="bold")
+        self.f_botao   = tkfont.Font(family="Segoe UI", size=12, weight="bold")
+        self.f_label   = tkfont.Font(family="Segoe UI", size=10)
 
         self._montar_interface()
         self._atualizar_display()
@@ -76,16 +83,61 @@ class PomodoroKawaii:
         tk.Label(
             self.root, text="🌸 Pomodoro Kawaii 🌸",
             font=self.f_titulo, bg=CORES["fundo"], fg=CORES["acento"]
-        ).pack(pady=(22, 4))
+        ).pack(pady=(18, 2))
 
-        # Patente (sistema de conquistas, versão leve)
         self.lbl_patente = tk.Label(
             self.root, text="", font=self.f_normal,
             bg=CORES["fundo"], fg=CORES["texto_sec"]
         )
-        self.lbl_patente.pack(pady=(0, 14))
+        self.lbl_patente.pack(pady=(0, 10))
 
-        # Cartão central com o timer
+        # ── Painel de configuração de tempo ──────────────────
+        cfg = tk.Frame(self.root, bg=CORES["cartao"], bd=0)
+        cfg.pack(padx=24, pady=(0, 8), fill="x")
+
+        tk.Label(
+            cfg, text="⚙️ Configurar tempos (min)",
+            font=self.f_label, bg=CORES["cartao"], fg=CORES["texto"]
+        ).grid(row=0, column=0, columnspan=4, pady=(12, 6))
+
+        # Foco
+        tk.Label(
+            cfg, text="📚 Foco:", font=self.f_label,
+            bg=CORES["cartao"], fg=CORES["texto"]
+        ).grid(row=1, column=0, padx=(16, 4), pady=(0, 12), sticky="e")
+
+        self.var_foco = tk.StringVar(value=str(self.foco_min))
+        self.entry_foco = self._criar_entry(cfg, self.var_foco)
+        self.entry_foco.grid(row=1, column=1, padx=(0, 16), pady=(0, 12))
+
+        # Pausa
+        tk.Label(
+            cfg, text="☕ Pausa:", font=self.f_label,
+            bg=CORES["cartao"], fg=CORES["texto"]
+        ).grid(row=1, column=2, padx=(8, 4), pady=(0, 12), sticky="e")
+
+        self.var_pausa = tk.StringVar(value=str(self.pausa_min))
+        self.entry_pausa = self._criar_entry(cfg, self.var_pausa)
+        self.entry_pausa.grid(row=1, column=3, padx=(0, 16), pady=(0, 12))
+
+        # Botão aplicar
+        self.btn_aplicar = tk.Button(
+            cfg, text="✔ Aplicar", font=self.f_pequena,
+            bg=CORES["acento"], fg="white",
+            activebackground=CORES["acento2"], activeforeground=CORES["texto"],
+            bd=0, padx=12, pady=5, cursor="hand2",
+            command=self._aplicar_config
+        )
+        self.btn_aplicar.grid(row=2, column=0, columnspan=4, pady=(0, 12))
+
+        # Mensagem de erro/confirmação da config
+        self.lbl_cfg_msg = tk.Label(
+            cfg, text="", font=self.f_pequena,
+            bg=CORES["cartao"], fg=CORES["erro"]
+        )
+        self.lbl_cfg_msg.grid(row=3, column=0, columnspan=4, pady=(0, 6))
+
+        # ── Cartão do timer ───────────────────────────────────
         cartao = tk.Frame(self.root, bg=CORES["cartao"], bd=0)
         cartao.pack(padx=24, pady=4, fill="x")
 
@@ -101,9 +153,9 @@ class PomodoroKawaii:
         )
         self.lbl_timer.pack(pady=(0, 18))
 
-        # Botões
+        # ── Botões de controle ────────────────────────────────
         botoes = tk.Frame(self.root, bg=CORES["fundo"])
-        botoes.pack(pady=18)
+        botoes.pack(pady=14)
 
         self.btn_iniciar = tk.Button(
             botoes, text="▶ Iniciar", font=self.f_botao,
@@ -115,15 +167,16 @@ class PomodoroKawaii:
 
         self.btn_resetar = tk.Button(
             botoes, text="↺ Resetar", font=self.f_botao,
-            bg=CORES["acento2"], fg=CORES["texto"], activebackground=CORES["cartao"],
-            activeforeground=CORES["texto"], bd=0, padx=20, pady=8,
+            bg=CORES["acento2"], fg=CORES["texto"],
+            activebackground=CORES["cartao"], activeforeground=CORES["texto"],
+            bd=0, padx=20, pady=8,
             cursor="hand2", command=self.resetar
         )
         self.btn_resetar.grid(row=0, column=1, padx=6)
 
-        # Painel de estatísticas
+        # ── Estatísticas ──────────────────────────────────────
         stats = tk.Frame(self.root, bg=CORES["fundo"])
-        stats.pack(pady=(8, 0))
+        stats.pack(pady=(6, 0))
 
         tk.Label(
             stats, text="📊 Estatísticas de hoje", font=self.f_normal,
@@ -146,24 +199,83 @@ class PomodoroKawaii:
         tk.Label(
             self.root, text="feito com 🩷 pela feiticeira do código",
             font=self.f_pequena, bg=CORES["fundo"], fg=CORES["texto_sec"]
-        ).pack(side="bottom", pady=12)
+        ).pack(side="bottom", pady=10)
+
+    def _criar_entry(self, parent, textvariable):
+        """Cria um campo numérico estilizado."""
+        e = tk.Entry(
+            parent, textvariable=textvariable,
+            width=4, justify="center",
+            font=self.f_label,
+            bg="white", fg=CORES["texto"],
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground=CORES["input_bd"],
+            highlightcolor=CORES["input_foc"],
+        )
+        return e
+
+    # ──────────────────────────────────────────────────────────
+    # Aplicar configuração de tempo
+    # ──────────────────────────────────────────────────────────
+    def _aplicar_config(self):
+        """Valida e aplica os novos valores de foco e pausa."""
+        if self.rodando:
+            self._mostrar_msg_cfg("⚠️ Pause o timer antes de alterar.", erro=True)
+            return
+
+        try:
+            novo_foco = int(self.var_foco.get())
+            nova_pausa = int(self.var_pausa.get())
+        except ValueError:
+            self._mostrar_msg_cfg("Use apenas números inteiros!", erro=True)
+            return
+
+        if not (1 <= novo_foco <= 120):
+            self._mostrar_msg_cfg("Foco: entre 1 e 120 min.", erro=True)
+            return
+
+        if not (1 <= nova_pausa <= 60):
+            self._mostrar_msg_cfg("Pausa: entre 1 e 60 min.", erro=True)
+            return
+
+        self.foco_min = novo_foco
+        self.pausa_min = nova_pausa
+
+        # Reinicia o timer com os novos valores
+        self._iniciar_modo(self.modo)
+        self._atualizar_display()
+        self._mostrar_msg_cfg(f"✔ Aplicado: {novo_foco}min foco / {nova_pausa}min pausa", erro=False)
+
+    def _mostrar_msg_cfg(self, texto, erro=True):
+        cor = CORES["erro"] if erro else "#7CBB8A"
+        self.lbl_cfg_msg.config(text=texto, fg=cor)
+        # Limpa a mensagem após 3 segundos
+        self.root.after(3000, lambda: self.lbl_cfg_msg.config(text=""))
 
     # ──────────────────────────────────────────────────────────
     # Lógica do timer
-    #   Importante: em GUI NÃO se usa while + time.sleep(), porque
-    #   isso trava a janela. Usamos root.after(), que agenda a
-    #   próxima execução sem bloquear o loop de eventos do tkinter.
     # ──────────────────────────────────────────────────────────
     def alternar_play(self):
         if not self.rodando:
             self.rodando = True
             self.btn_iniciar.config(text="⏸ Pausar")
+            # Bloqueia os campos durante a sessão
+            self._toggle_config(habilitado=False)
             self._tick()
         else:
             self.rodando = False
             self.btn_iniciar.config(text="▶ Continuar")
+            self._toggle_config(habilitado=True)
             if self.after_id:
                 self.root.after_cancel(self.after_id)
+
+    def _toggle_config(self, habilitado: bool):
+        """Habilita ou desabilita os campos e o botão de configuração."""
+        estado = "normal" if habilitado else "disabled"
+        self.entry_foco.config(state=estado)
+        self.entry_pausa.config(state=estado)
+        self.btn_aplicar.config(state=estado)
 
     def _tick(self):
         if not self.rodando:
@@ -183,17 +295,14 @@ class PomodoroKawaii:
         self._tocar_som()
 
         if self.modo == "foco":
-            # Concluiu um Pomodoro de foco!
             self.pomodoros_hoje += 1
-            self.minutos_foco_hoje += FOCO_MIN
+            self.minutos_foco_hoje += self.foco_min
             self._salvar_historico()
             self._atualizar_stats()
             self._iniciar_modo("pausa")
         else:
-            # Concluiu a pausa, volta pro foco
             self._iniciar_modo("foco")
 
-        # Fluxo automático: já emenda a próxima sessão (como num Pomodoro de verdade)
         self.rodando = True
         self.btn_iniciar.config(text="⏸ Pausar")
         self._tick()
@@ -201,11 +310,11 @@ class PomodoroKawaii:
     def _iniciar_modo(self, modo):
         self.modo = modo
         if modo == "foco":
-            self.segundos = FOCO_MIN * 60
+            self.segundos = self.foco_min * 60
             self.lbl_estado.config(text="📚 Foco")
             self.lbl_timer.config(fg=CORES["acento"])
         else:
-            self.segundos = PAUSA_MIN * 60
+            self.segundos = self.pausa_min * 60
             self.lbl_estado.config(text="☕ Pausa")
             self.lbl_timer.config(fg=CORES["pausa"])
 
@@ -215,6 +324,7 @@ class PomodoroKawaii:
             self.root.after_cancel(self.after_id)
         self._iniciar_modo("foco")
         self.btn_iniciar.config(text="▶ Iniciar")
+        self._toggle_config(habilitado=True)
         self._atualizar_display()
 
     # ──────────────────────────────────────────────────────────
@@ -231,12 +341,9 @@ class PomodoroKawaii:
 
     def _patente(self):
         n = self.pomodoros_hoje
-        if n >= 10:
-            return "🏆 Arquimaga Python"
-        if n >= 5:
-            return "✨ Maga do Código"
-        if n >= 1:
-            return "🌱 Aprendiz"
+        if n >= 10: return "🏆 Arquimaga Python"
+        if n >= 5:  return "✨ Maga do Código"
+        if n >= 1:  return "🌱 Aprendiz"
         return "🌸 Pronta para começar"
 
     # ──────────────────────────────────────────────────────────
@@ -249,20 +356,19 @@ class PomodoroKawaii:
                 winsound.Beep(880, 250)
                 winsound.Beep(1100, 250)
             else:
-                # bell() funciona em Mac/Linux usando o som do sistema
                 self.root.bell()
         except Exception:
             try:
                 self.root.bell()
             except Exception:
-                pass  # se não rolar som, segue a vida sem travar
+                pass
 
     # ──────────────────────────────────────────────────────────
-    # Persistência (histórico em .txt)
+    # Persistência
     # ──────────────────────────────────────────────────────────
     def _salvar_historico(self):
         agora = datetime.datetime.now().isoformat(timespec="seconds")
-        linha = f"{agora} - Pomodoro de foco concluído ({FOCO_MIN} min)\n"
+        linha = f"{agora} - Pomodoro de foco concluído ({self.foco_min} min)\n"
         try:
             with open(ARQUIVO_HISTORICO, "a", encoding="utf-8") as f:
                 f.write(linha)
@@ -270,8 +376,7 @@ class PomodoroKawaii:
             print(f"Não consegui salvar o histórico: {e}")
 
     def _carregar_stats(self):
-        """Lê o histórico e conta quantos Pomodoros foram feitos HOJE."""
-        hoje = datetime.date.today().isoformat()  # ex: "2026-06-17"
+        hoje = datetime.date.today().isoformat()
         if not os.path.exists(ARQUIVO_HISTORICO):
             return
         try:
@@ -279,7 +384,12 @@ class PomodoroKawaii:
                 for linha in f:
                     if linha.startswith(hoje):
                         self.pomodoros_hoje += 1
-                        self.minutos_foco_hoje += FOCO_MIN
+                        # Tenta ler os minutos salvos na linha
+                        try:
+                            mins = int(linha.split("(")[1].split(" min)")[0])
+                        except Exception:
+                            mins = FOCO_MIN_PADRAO
+                        self.minutos_foco_hoje += mins
         except Exception as e:
             print(f"Não consegui ler o histórico: {e}")
 
